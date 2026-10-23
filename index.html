@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<!--
+  排版医生 · 公众号移动端阅读体检
+  单文件应用：无构建、无依赖、无网络请求，双击 index.html 即可运行。
+  评分口径见 docs/scoring-spec.md，项目说明见 README.md。
+-->
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>排版医生 · 公众号移动端阅读体检</title>
+<meta name="description" content="把公众号草稿粘进来，按手机屏幕算出每一段占几行，给出四维评分与可执行的改稿建议，一键修复后对比前后分数。" />
+<meta name="theme-color" content="#13293d" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231b3a57'/%3E%3Cpath d='M10 7v18M10 7h11l-2 4.5L21 15H10' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+<style>
+  :root{
+    --ink:#13293d;
+    --ink-2:#3d5566;
+    --sub:#6b7f8c;
+    --line:#e3e9ee;
+    --line-2:#eef2f5;
+    --bg:#f4f7f9;
+    --card:#ffffff;
+    --brand:#1b3a57;
+    --teal:#0f9a9a;
+    --teal-soft:#e6f6f6;
+    --warn:#d98324;
+    --warn-soft:#fdf3e5;
+    --bad:#c94a4a;
+    --bad-soft:#fbeceb;
+    --good:#1f9d63;
+    --good-soft:#e8f6ee;
+    --r:14px;
+    --shadow:0 1px 2px rgba(19,41,61,.04), 0 8px 24px rgba(19,41,61,.06);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg);color:var(--ink);
+    font-family:system-ui,-apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:14px;line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  button{font-family:inherit;font-size:13px;cursor:pointer;border-radius:9px;border:1px solid var(--line);background:#fff;color:var(--ink-2);padding:7px 13px;transition:.16s}
+  button:hover{border-color:#c6d2da;color:var(--ink);background:#fbfcfd}
+  button.primary{background:var(--brand);border-color:var(--brand);color:#fff}
+  button.primary:hover{background:#12293e;border-color:#12293e;color:#fff}
+  button.ghost{background:transparent;border-color:transparent;color:var(--sub)}
+  button.ghost:hover{background:#eef3f6;color:var(--ink)}
+  img{max-width:100%;height:auto}
+
+  .topbar{
+    position:sticky;top:0;z-index:30;
+    display:flex;align-items:center;justify-content:space-between;gap:14px;
+    padding:12px 20px;background:rgba(255,255,255,.88);
+    backdrop-filter:saturate(1.4) blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .brand{display:flex;align-items:center;gap:10px;min-width:0}
+  .brand-mark{width:30px;height:30px;flex:none;border-radius:9px;background:linear-gradient(150deg,#1b3a57,#0f9a9a);display:grid;place-items:center}
+  .brand-mark svg{display:block}
+  .brand-txt{display:flex;align-items:baseline;gap:8px;min-width:0}
+  .brand-name{font-size:15px;font-weight:700;letter-spacing:.01em;white-space:nowrap}
+  .brand-tag{font-size:11.5px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .topacts{display:flex;align-items:center;gap:8px;flex:none}
+
+  .guide{
+    display:flex;align-items:center;gap:18px;flex-wrap:wrap;
+    padding:10px 22px 0;font-size:12px;color:var(--sub);
+  }
+  .guide .g-lead{color:#93a3ae}
+  .guide span{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+  .guide b{
+    width:17px;height:17px;border-radius:50%;background:#e8eef2;color:#4a6072;
+    font-size:10.5px;font-weight:700;display:inline-grid;place-items:center;flex:none;
+  }
+
+  .stage{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) 400px 356px;
+    gap:16px;
+    padding:14px 20px 28px;
+    align-items:start;
+  }
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column}
+  .panel-hd{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px 10px;border-bottom:1px solid var(--line-2)}
+  .panel-hd h2{margin:0;font-size:13px;font-weight:650;letter-spacing:.02em;color:var(--ink)}
+  .panel-hd .hint{font-size:11.5px;color:var(--sub);white-space:nowrap}
+
+  /* ── 编辑区 ── */
+  .editor{min-height:calc(100vh - 150px)}
+  #src{
+    flex:1;width:100%;min-height:340px;resize:none;border:0;outline:0;
+    padding:14px 16px;font-family:inherit;font-size:14.5px;line-height:1.85;color:var(--ink);
+    background:transparent;
+  }
+  #src::placeholder{color:#a9b8c2}
+  .editor-ft{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;border-top:1px solid var(--line-2);background:#fbfcfd}
+  .editor-ft .left{display:flex;gap:6px;flex-wrap:wrap}
+
+  /* ── 手机预览 ── */
+  .preview{padding-bottom:14px}
+  .pv-tools{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line-2)}
+  .seg{display:inline-flex;background:#eef3f6;border-radius:8px;padding:2px}
+  .seg button{border:0;background:transparent;padding:4px 9px;font-size:11.5px;color:var(--sub);border-radius:6px}
+  .seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(19,41,61,.1)}
+  .device{margin:16px auto 6px;width:375px;max-width:calc(100% - 20px);border-radius:22px;border:1px solid #d7e0e7;background:#fff;box-shadow:0 10px 30px rgba(19,41,61,.09);overflow:hidden}
+  .device-bar{height:30px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--line-2);background:#fafcfd}
+  .device-bar span{font-size:10.5px;color:#9aacb8;letter-spacing:.14em}
+  .pv-body{height:min(560px,62vh);overflow-y:auto;padding:16px;scrollbar-width:thin}
+  .pv-body::-webkit-scrollbar{width:5px}
+  .pv-body::-webkit-scrollbar-thumb{background:#dbe4ea;border-radius:3px}
+  .pv-p{
+    margin:0 0 14px;border-left:3px solid transparent;padding-left:9px;
+    transition:background .2s,border-color .2s;
+    white-space:pre-wrap;word-break:break-word;
+  }
+  .pv-p.lv-warn{border-left-color:#eda83f}
+  .pv-p.lv-bad{border-left-color:#c94a4a}
+  .pv-p.lv-head{border-left-color:transparent;font-weight:700}
+  .pv-p.flash{background:#fff7e6;border-left-color:#eda83f}
+  .pv-empty{color:#a9b8c2;text-align:center;padding:60px 10px;font-size:13px}
+  .legend{display:flex;gap:14px;justify-content:center;padding:2px 12px 4px;font-size:11px;color:var(--sub);flex-wrap:wrap}
+  .legend i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:4px;vertical-align:middle}
+
+  /* ── 报告 ── */
+  .score-wrap{display:flex;align-items:center;gap:14px;padding:16px 16px 8px}
+  .ring{position:relative;width:104px;height:104px;flex:none}
+  .ring svg{transform:rotate(-90deg)}
+  .ring-num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .ring-num b{font-size:30px;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+  .ring-num s{text-decoration:none;font-size:10.5px;color:var(--sub);margin-top:3px;letter-spacing:.06em}
+  .grade{padding:3px 9px;border-radius:999px;font-size:11.5px;font-weight:600;display:inline-block}
+  .diag{font-size:12.5px;line-height:1.65;color:var(--ink-2);margin-top:6px}
+  .stats{display:flex;gap:12px;flex-wrap:wrap;padding:0 16px 14px;font-size:11.5px;color:var(--sub)}
+  .stats b{color:var(--ink);font-weight:650;font-variant-numeric:tabular-nums}
+
+  .dims{padding:4px 16px 8px;border-top:1px solid var(--line-2)}
+  .dim{padding:9px 0}
+  .dim-hd{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:12.5px}
+  .dim-hd em{font-style:normal;color:var(--sub);font-size:11px;font-variant-numeric:tabular-nums}
+  .bar{height:6px;border-radius:4px;background:#eef2f5;margin-top:6px;overflow:hidden}
+  .bar span{display:block;height:100%;border-radius:4px;transition:width .45s cubic-bezier(.2,.8,.2,1)}
+  .dim-note{font-size:11px;color:var(--sub);margin-top:5px;line-height:1.5}
+
+  .issues{border-top:1px solid var(--line-2);padding:12px 16px 16px;max-height:340px;overflow-y:auto}
+  .issues-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .issues-hd h3{margin:0;font-size:12.5px;font-weight:650}
+  .issue{display:flex;gap:9px;padding:9px 0;border-bottom:1px dashed var(--line-2);cursor:pointer}
+  .issue:last-child{border-bottom:0}
+  .issue:hover{background:#fbfcfd}
+  .dot{width:6px;height:6px;border-radius:50%;flex:none;margin-top:7px}
+  .issue-body{min-width:0;flex:1}
+  .issue-t{font-size:12.5px;line-height:1.55;color:var(--ink)}
+  .issue-m{font-size:11px;color:var(--sub);margin-top:3px;line-height:1.5}
+  .issue-q{font-size:11px;color:#8b9aa5;margin-top:4px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#f6f9fa;padding:3px 6px;border-radius:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ok-state{padding:26px 16px;text-align:center;color:var(--sub);font-size:12.5px}
+  .ok-state b{display:block;color:var(--good);font-size:13.5px;margin-bottom:5px}
+
+  .improve{display:none;margin:0 16px 14px;padding:9px 12px;border-radius:10px;background:var(--good-soft);color:#12724a;font-size:12px;align-items:center;justify-content:space-between;gap:8px}
+  .improve.show{display:flex}
+  .improve b{font-variant-numeric:tabular-nums}
+
+  /* ── 说明弹层 ── */
+  .mask{position:fixed;inset:0;background:rgba(19,41,61,.42);display:none;z-index:60;padding:20px;overflow-y:auto}
+  .mask.show{display:block}
+  .modal{max-width:620px;margin:40px auto;background:#fff;border-radius:16px;padding:22px 24px 20px;box-shadow:0 24px 60px rgba(19,41,61,.22)}
+  .modal h3{margin:0 0 4px;font-size:16px}
+  .modal .m-sub{color:var(--sub);font-size:12px;margin-bottom:16px}
+  .modal h4{font-size:13px;margin:16px 0 6px;color:var(--ink)}
+  .modal p,.modal li{font-size:12.5px;color:var(--ink-2);line-height:1.75;margin:0 0 6px}
+  .modal ul{margin:0;padding-left:18px}
+  .modal .close{width:100%;margin-top:18px}
+
+  .toast{position:fixed;left:50%;bottom:32px;transform:translate(-50%,16px);background:var(--ink);color:#fff;padding:9px 16px;border-radius:10px;font-size:12.5px;opacity:0;pointer-events:none;transition:.22s;z-index:80}
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+
+  .foot{padding:0 20px 34px;color:#93a3ae;font-size:11.5px;text-align:center;line-height:1.8}
+  .foot b{color:#7c8d99;font-weight:600}
+
+  @media (max-width:1180px){
+    .stage{grid-template-columns:1fr;}
+    .editor{min-height:auto}
+    #src{min-height:300px}
+    .pv-body{height:420px}
+    .issues{max-height:none}
+  }
+  @media (max-width:560px){
+    .topbar{padding:10px 12px;flex-wrap:wrap}
+    .brand-tag{display:none}
+    .guide{padding:9px 12px 0;gap:10px;font-size:11.5px}
+    .guide .g-lead{display:none}
+    .stage{padding:12px 12px 22px;gap:12px}
+    .topacts button{padding:6px 10px;font-size:12.5px}
+    .score-wrap{padding:14px 14px 6px}
+    .ring{width:92px;height:92px}
+    .ring-num b{font-size:26px}
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark" aria-hidden="true">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round">
+        <path d="M5 4v16M5 4h9l-1.6 3.4L14 11H5" />
+        <path d="M19 8v9" opacity=".55"/><path d="M19 20h.01" opacity=".55"/>
+      </svg>
+    </div>
+    <div class="brand-txt">
+      <span class="brand-name">排版医生</span>
+      <span class="brand-tag">公众号移动端阅读体检</span>
+    </div>
+  </div>
+  <div class="topacts">
+    <button id="btnSample" type="button">载入示例</button>
+    <button id="btnRules" type="button">评分规则</button>
+    <button id="btnExport" class="primary" type="button">导出体检卡</button>
+  </div>
+</header>
+
+<div class="guide">
+  <span class="g-lead">四步</span>
+  <span><b>1</b>粘入草稿</span>
+  <span><b>2</b>右侧看分</span>
+  <span><b>3</b>一键修复</span>
+  <span><b>4</b>导出体检卡</span>
+</div>
+
+<main class="stage">
+
+  <section class="panel editor">
+    <div class="panel-hd">
+      <h2>草稿</h2>
+      <span class="hint" id="wordCount">0 字</span>
+    </div>
+    <textarea id="src" spellcheck="false" aria-label="公众号草稿正文" placeholder="把公众号正文粘进来（纯文本即可）。空行分段，一个换行算一段。&#10;&#10;体检只看排版：段落长度、句子长度、标题层级、标点规范，不评价内容好坏。"></textarea>
+    <div class="editor-ft">
+      <div class="left">
+        <button id="btnFix" class="primary" type="button">一键修复</button>
+        <button id="btnUndo" type="button" disabled>撤销</button>
+        <button id="btnCopy" type="button">复制修订稿</button>
+      </div>
+      <button id="btnClear" class="ghost" type="button">清空</button>
+    </div>
+  </section>
+
+  <section class="panel preview">
+    <div class="pv-tools">
+      <div class="seg" id="segFont" role="group" aria-label="正文字号">
+        <button type="button" data-v="14">14</button>
+        <button type="button" data-v="15" class="on">15</button>
+        <button type="button" data-v="16">16</button>
+        <button type="button" data-v="17">17</button>
+      </div>
+      <div class="seg" id="segLh" role="group" aria-label="行高">
+        <button type="button" data-v="1.6">1.6</button>
+        <button type="button" data-v="1.75" class="on">1.75</button>
+        <button type="button" data-v="2">2.0</button>
+      </div>
+    </div>
+    <div class="device">
+      <div class="device-bar"><span>375 px</span></div>
+      <div class="pv-body" id="pvBody">
+        <div class="pv-empty">左侧粘入正文，这里就是读者手机上看到的样子</div>
+      </div>
+    </div>
+    <div class="legend">
+      <span><i style="background:#1f9d63"></i>4 行以内</span>
+      <span><i style="background:#eda83f"></i>5—6 行</span>
+      <span><i style="background:#c94a4a"></i>7 行以上</span>
+    </div>
+  </section>
+
+  <section class="panel report">
+    <div class="score-wrap">
+      <div class="ring">
+        <svg width="104" height="104" viewBox="0 0 104 104" aria-hidden="true">
+          <circle cx="52" cy="52" r="45" fill="none" stroke="#eef2f5" stroke-width="9"></circle>
+          <circle id="ringFg" cx="52" cy="52" r="45" fill="none" stroke="#1f9d63" stroke-width="9"
+                  stroke-linecap="round" stroke-dasharray="282.7" stroke-dashoffset="282.7"
+                  style="transition:stroke-dashoffset .6s cubic-bezier(.2,.8,.2,1),stroke .3s"></circle>
+        </svg>
+        <div class="ring-num">
+          <b id="scoreNum">—</b>
+          <s id="scoreUnit">满分 100</s>
+        </div>
+      </div>
+      <div style="min-width:0">
+        <div id="gradeChip" class="grade" style="background:#eef2f5;color:#6b7f8c">待体检</div>
+        <div class="diag" id="diag">粘贴草稿后自动给出四维评分与改法。</div>
+      </div>
+    </div>
+    <div class="stats">
+      <span>字数 <b id="stChars">0</b></span>
+      <span>段落 <b id="stParas">0</b></span>
+      <span>预估阅读 <b id="stRead">0 分钟</b></span>
+      <span>超长段 <b id="stBad">0</b></span>
+    </div>
+    <div class="improve" id="improve"></div>
+    <div class="dims" id="dims"></div>
+    <div class="issues" id="issues">
+      <div class="ok-state">还没有草稿。<br />点右上角「载入示例」可以直接看效果。</div>
+    </div>
+  </section>
+
+</main>
+
+<div class="foot">
+  <b>排版医生</b> · 纯本地运算，草稿不上传、不联网 · 行数按 375px 屏宽与当前字号估算，与微信实际渲染可能有 1 行误差
+</div>
+
+<div class="mask" id="mask">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="ruleTitle">
+    <h3 id="ruleTitle">评分规则</h3>
+    <div class="m-sub">满分 100 分，四个维度相加。分数只衡量「在手机上读起来累不累」，不评价内容。</div>
+
+    <h4>一、段落呼吸感 · 30 分</h4>
+    <p>按你当前选的字号，把每段换算成手机上的实际行数：4 行以内满分，5 行扣分，7 行以上接近零分。手机阅读是「扫」不是「读」，一段太长读者会直接跳过。</p>
+
+    <h4>二、句子长度 · 25 分</h4>
+    <p>一逗到底的长句会让人忘记主语。30 字以内满分，超过 40 字开始明显扣分，超过 70 字接近零分。一句话只说一件事。</p>
+
+    <h4>三、结构层级 · 20 分</h4>
+    <ul>
+      <li>有没有小标题，让读者知道自己读到哪（8 分）</li>
+      <li>段落总数是否在 3—25 段之间（4 分）</li>
+      <li>开头第一段是否控制在 4 行内（4 分）</li>
+      <li>小标题前后是否留了空行（4 分）</li>
+    </ul>
+
+    <h4>四、标点与规范 · 25 分</h4>
+    <p>中英文之间缺空格、中文句子用半角逗号、连用感叹号问号、用三个点代替省略号、段首段尾多余空格、连续空行——每处按权重扣分。</p>
+
+    <h4>口径说明</h4>
+    <p>行数估算：可用宽度 = 375px 屏宽 − 左右各 16px 内边距 = 343px，除以当前字号得到每行可容纳的汉字数（15px 时约 22.8 字）。英文与数字按半个汉字宽计算。微信实际渲染受机型与字体影响，通常有 ±1 行误差，本工具用于快速自查，不替代真机预览。</p>
+
+    <button class="close primary" id="btnCloseRules" type="button">开始体检</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<noscript>
+  <div style="padding:24px;text-align:center;font-size:14px;color:#3d5566">
+    排版医生的评分与修复都在浏览器本地完成，需要开启 JavaScript 才能使用。
+  </div>
+</noscript>
+
+<script>
+/* ============================================================================
+   排版医生 · 移动端阅读体检
+   自上而下的结构：
+     1. 样例与状态      SAMPLE / state / DOM 引用
+     2. 文本测量        emWidth → capacity → estLines；isHeading / sentences
+     3. 问题检测        detect()   逐条生成可定位的改稿建议
+     4. 评分引擎        compute()  四维加权，产出 dims / issues / total
+     5. 渲染            renderPreview / renderReport / render
+     6. 一键修复        autoFix()  只整理格式，不改写语义
+     7. 交互与导出     事件绑定 + drawCard()（Canvas 生成体检卡）
+     8. 启动            init()     读取本地草稿与偏好
+
+   约束：ES5 语法（兼容旧 WebView）、零外部依赖、所有动态文本走 textContent。
+   ========================================================================== */
+(function () {
+  "use strict";
+
+  var SAMPLE = [
+    "每年一到开学季,各个组织的公众号都会集中更新一批推送。很多同学第一次上手,最容易犯的错误不是内容不好,而是把一整段话硬塞进一个段落里!!",
+    "我们在后台看到最多的两种情况是:一段话超过8行,读者在手机上滑到一半就退出;标题层级混乱,读者不知道自己读到哪一部分。",
+    "比如下面这段就是典型:",
+    "去年我们做过一次问卷,回收了378份有效样本,其中有62%的同学表示,自己在阅读公众号文章时,如果一段话超过6行就会选择跳过,而这个数据其实比我们想象中要严重得多,因为它意味着你在第三行写的那个转折,大概率不会被任何人看到。",
+    "解决办法其实不复杂,记住三条就够了。",
+    "第一,一段不超过4行,让眼睛有地方休息。",
+    "第二,一个句子不超过40字,一句话说一件事。",
+    "第三,中英文之间加空格,数字和单位之间也要留白。",
+    "按这三条改一遍,同一篇稿子的平均阅读完成率通常能提升20%以上。"
+  ].join("\n");
+
+  var state = {
+    text: "",
+    fontSize: 15,
+    lineHeight: 1.75,
+    lastText: "",
+    canUndo: false,
+    beforeScore: null,
+    result: null
+  };
+
+  var el = {};
+  ["src","wordCount","pvBody","scoreNum","ringFg","gradeChip","diag","stChars","stParas","stRead","stBad",
+   "dims","issues","improve","btnSample","btnRules","btnExport","btnFix","btnUndo","btnCopy","btnClear",
+   "segFont","segLh","mask","btnCloseRules","toast"].forEach(function (id) {
+    el[id] = document.getElementById(id);
+  });
+
+  /* ───────── 文本测量 ───────── */
+  function emWidth(s) {
+    var w = 0;
+    for (var i = 0; i < s.length; i++) {
+      var c = s.charCodeAt(i);
+      if (c < 128) {
+        if (c === 32) { w += 0.3; }
+        else if (c >= 48 && c <= 57) { w += 0.55; }
+        else if (c >= 65 && c <= 90) { w += 0.62; }
+        else if (c >= 97 && c <= 122) { w += 0.53; }
+        else { w += 0.4; }
+      } else { w += 1; }
+    }
+    return w;
+  }
+  function capacity() { return (375 - 32) / state.fontSize; }
+  function estLines(s) {
+    var w = emWidth(s);
+    if (w <= 0) { return 0; }
+    return Math.max(1, Math.ceil(w / capacity() - 0.02));
+  }
+
+  var HEAD_RE = /^(第[一二三四五六七八九十百]+[，,、.．]|[一二三四五六七八九十]{1,3}[、.．]|[（(][一二三四五六七八九十\d]{1,3}[)）]|\d{1,2}[、.．)）]|0\d[\s、]|[【\[]|#{1,4}\s|▍|●|◆|■)/;
+
+  function isHeading(t) {
+    var s = t.trim();
+    if (!s || s.length > 24) { return false; }
+    /* 「第一，……。」这种是完整句子，不是小标题 */
+    if (HEAD_RE.test(s)) { return !(/[。！？!?；;]$/.test(s) && s.length > 14); }
+    if (s.length <= 14 && /[：:]$/.test(s)) { return true; }
+    if (s.length <= 12 && !/[。！？!?，,；;、…]$/.test(s) && emWidth(s) <= 13) { return true; }
+    return false;
+  }
+
+  var SENT_END = "。！？!?；;";
+
+  function sentences(p) {
+    var out = [], cur = "";
+    for (var i = 0; i < p.length; i++) {
+      var ch = p.charAt(i);
+      cur += ch;
+      if (SENT_END.indexOf(ch) >= 0) { out.push(cur); cur = ""; }
+    }
+    if (cur.trim()) { out.push(cur); }
+    return out;
+  }
+  function sentLen(s) {
+    return s.replace(/[\s\u3000]/g, "").replace(/[。！？!?；;，,、：:""''（）()]/g, "").length;
+  }
+
+  /* ───────── 问题检测 ───────── */
+  function detect(text, paras) {
+    var issues = [];
+    function add(sev, para, title, msg, quote) {
+      issues.push({ sev: sev, para: para, title: title, msg: msg, quote: quote || "" });
+    }
+
+    paras.forEach(function (p, idx) {
+      if (p.lines >= 5 && !p.isHeading) {
+        var oneSent = p.sentences.length <= 1;
+        var msg;
+        if (oneSent) {
+          msg = "这一整段其实只有一句话，中间没有可以断的地方。需要你按语意自己断一次，或者删掉从句。";
+        } else if (p.lines >= 7) {
+          msg = "手机上这一段要滑一屏半，读者多数会跳过。建议在句号处拆成 2—3 段。";
+        } else {
+          msg = "略长。在第一个句号处断开即可。";
+        }
+        add(p.lines >= 7 ? "bad" : "warn", idx,
+          "第 " + (idx + 1) + " 段约 " + p.lines + " 行，超过 4 行",
+          msg, p.text.slice(0, 34));
+      }
+      p.sentences.forEach(function (s) {
+        var L = sentLen(s);
+        if (L > 45) {
+          add(L > 70 ? "bad" : "warn", idx,
+            "第 " + (idx + 1) + " 段有 " + L + " 字的长句",
+            "一句话超过 40 字，主语容易被忘掉。拆成两句，或删掉从句。",
+            s.trim().slice(0, 34));
+        }
+      });
+    });
+
+    /* 中英文之间缺空格 */
+    var raw = text;
+    var noSpaceA = raw.match(/[\u4e00-\u9fa5][A-Za-z0-9]/g) || [];
+    var noSpaceB = raw.match(/[A-Za-z0-9][\u4e00-\u9fa5]/g) || [];
+    var noSpace = noSpaceA.length + noSpaceB.length;
+    if (noSpace > 0) {
+      add(noSpace > 4 ? "warn" : "info", -1,
+        "中英文 / 数字之间缺空格 " + noSpace + " 处",
+        "「超过8行」应写作「超过 8 行」。一键修复会自动补齐。",
+        (noSpaceA[0] || noSpaceB[0] || ""));
+    }
+
+    /* 中文句中的半角逗号 */
+    var halfComma = (raw.match(/[\u4e00-\u9fa5],|,[\u4e00-\u9fa5]/g) || []).length;
+    if (halfComma > 0) {
+      add("warn", -1, "中文句子里用了半角逗号 " + halfComma + " 处",
+        "中文正文请用全角「，」。半角逗号在手机上会挤成一条细线。", "");
+    }
+
+    /* 连续标点 */
+    var repeatMark = raw.match(/[！!]{2,}|[？?]{2,}|[。]{2,}|[，,]{2,}/g) || [];
+    if (repeatMark.length > 0) {
+      add("warn", -1, "连用标点 " + repeatMark.length + " 处",
+        "「!!」「。。」会显得情绪失控。留一个就好。", repeatMark.slice(0, 3).join(" / "));
+    }
+
+    /* 省略号 */
+    var dots = raw.match(/\.{3,}|。{3,}/g) || [];
+    if (dots.length > 0) {
+      add("info", -1, "省略号写法不规范 " + dots.length + " 处",
+        "统一写成「……」两个全角省略号，不要用三个英文句点。", dots[0]);
+    }
+
+    /* 段首 / 段尾空格 */
+    var leadSpace = (text.match(/^[ \t\u3000]+/gm) || []).length;
+    var tailSpace = (text.match(/[ \t\u3000]+$/gm) || []).length;
+    if (leadSpace + tailSpace > 0) {
+      add("info", -1, "段首 / 段尾多余空白 " + (leadSpace + tailSpace) + " 处",
+        "公众号是自动首行缩进的，手打空格会让整段错位。", "");
+    }
+    if (/\u3000/.test(raw)) {
+      add("info", -1, "含有全角空格",
+        "全角空格在部分机型上宽度不一致，建议换成普通空格。", "");
+    }
+
+    /* 连续空行 */
+    if (/\n{3,}/.test(raw)) {
+      add("info", -1, "存在连续空行",
+        "连续两个以上空行在手机上会撑出大片留白，保留一个即可。", "");
+    }
+
+    /* 英文标点收尾 */
+    var enEnd = (raw.match(/[\u4e00-\u9fa5]\s*[.;:!?](?=\s|$)/gm) || []).length;
+    if (enEnd > 0) {
+      add("info", -1, "中文句子用英文标点收尾 " + enEnd + " 处",
+        "改成全角「。」「，」更符合中文阅读习惯。", "");
+    }
+
+    return issues;
+  }
+
+  /* ───────── 评分 ───────── */
+  function compute(text) {
+    var lines = text.split("\n");
+    var paras = [];
+    lines.forEach(function (ln, i) {
+      var t = ln.replace(/[ \t\u3000]+$/, "");
+      if (!t.trim()) { return; }
+      var heading = isHeading(t);
+      paras.push({
+        rawIndex: i,
+        text: t,
+        isHeading: heading,
+        em: emWidth(t),
+        lines: estLines(t.trim()),
+        sentences: heading ? [] : sentences(t)
+      });
+    });
+
+    var body = paras.filter(function (p) { return !p.isHeading; });
+    var res = {
+      paras: paras,
+      issues: [],
+      dims: [],
+      total: 0,
+      chars: text.replace(/\s/g, "").length,
+      readMin: Math.max(1, Math.round(text.replace(/\s/g, "").length / 400)),
+      badCount: body.filter(function (p) { return p.lines >= 7; }).length,
+      overCount: body.filter(function (p) { return p.lines >= 5; }).length
+    };
+
+    if (!body.length) {
+      res.empty = true;
+      return res;
+    }
+
+    /* 1. 段落呼吸感 30 */
+    var sumA = 0;
+    body.forEach(function (p) {
+      var L = p.lines, s;
+      if (L <= 4) { s = 100; }
+      else if (L === 5) { s = 78; }
+      else if (L === 6) { s = 52; }
+      else if (L === 7) { s = 28; }
+      else { s = Math.max(6, 28 - (L - 7) * 6); }
+      sumA += s;
+    });
+    var A = 30 * (sumA / body.length) / 100;
+
+    /* 2. 句子长度 25 */
+    var sents = [];
+    body.forEach(function (p) {
+      p.sentences.forEach(function (s) {
+        if (sentLen(s) >= 6) { sents.push(sentLen(s)); }
+      });
+    });
+    var B = 25;
+    if (sents.length) {
+      var sumB = 0;
+      sents.forEach(function (L) {
+        var s;
+        if (L <= 30) { s = 100; }
+        else if (L <= 40) { s = 80; }
+        else if (L <= 50) { s = 58; }
+        else if (L <= 70) { s = 32; }
+        else { s = 12; }
+        sumB += s;
+      });
+      B = 25 * (sumB / sents.length) / 100;
+    }
+
+    /* 3. 结构层级 20 */
+    var heads = paras.filter(function (p) { return p.isHeading; });
+    var C = 0, cNotes = [];
+    if (heads.length > 0) { C += 8; } else { cNotes.push("没有小标题"); }
+    if (body.length >= 3 && body.length <= 25) { C += 4; }
+    else { cNotes.push(body.length < 3 ? "段落太少，像一段宣言" : "段落过多，碎片化"); }
+    if (body[0].lines <= 4) { C += 4; } else { cNotes.push("开头第一段超过 4 行"); }
+    if (heads.length > 0) {
+      var withGap = 0;
+      heads.forEach(function (h) {
+        var prev = lines[h.rawIndex - 1];
+        var next = lines[h.rawIndex + 1];
+        if ((prev !== undefined && !prev.trim()) || (next !== undefined && !next.trim())) { withGap++; }
+      });
+      if (withGap / heads.length >= 0.6) { C += 4; }
+      else { cNotes.push("小标题前后没留空行"); }
+    } else { cNotes.push("小标题前后没留空行"); }
+
+    /* 4. 标点与规范 25 */
+    var raw = text;
+    var d = 0;
+    var noSpace = (raw.match(/[\u4e00-\u9fa5][A-Za-z0-9]/g) || []).length +
+                  (raw.match(/[A-Za-z0-9][\u4e00-\u9fa5]/g) || []).length;
+    d += Math.min(8, noSpace * 1);
+    d += Math.min(6, (raw.match(/[\u4e00-\u9fa5],|,[\u4e00-\u9fa5]/g) || []).length);
+    d += Math.min(6, (raw.match(/[！!]{2,}|[？?]{2,}|[。]{2,}|[，,]{2,}/g) || []).length * 2);
+    d += Math.min(3, (raw.match(/\.{3,}|。{3,}/g) || []).length);
+    d += Math.min(4, (raw.match(/^[ \t\u3000]+/gm) || []).length + (raw.match(/[ \t\u3000]+$/gm) || []).length);
+    if (/\u3000/.test(raw)) { d += 1; }
+    if (/\n{3,}/.test(raw)) { d += 2; }
+    d += Math.min(4, (raw.match(/[\u4e00-\u9fa5]\s*[.;:!?](?=\s|$)/gm) || []).length);
+    var D = Math.max(0, 25 - d);
+
+    res.dims = [
+      { key: "A", name: "段落呼吸感", score: A, max: 30,
+        note: A >= 26 ? "段落长度控制得很好" : (A >= 18 ? "有 " + res.overCount + " 段偏长" : "超过半数段落需要拆行"),
+        color: A >= 24 ? "#1f9d63" : (A >= 16 ? "#d98324" : "#c94a4a") },
+      { key: "B", name: "句子长度", score: B, max: 25,
+        note: B >= 21 ? "句子干净，一句一事" : (B >= 15 ? "个别长句可以断开" : "长句扎堆，读起来喘不上气"),
+        color: B >= 21 ? "#1f9d63" : (B >= 15 ? "#d98324" : "#c94a4a") },
+      { key: "C", name: "结构层级", score: C, max: 20,
+        note: cNotes.length ? cNotes.slice(0, 2).join("；") : "层级清楚，标题留白到位",
+        color: C >= 16 ? "#1f9d63" : (C >= 11 ? "#d98324" : "#c94a4a") },
+      { key: "D", name: "标点与规范", score: D, max: 25,
+        note: d === 0 ? "标点规范，没有可挑的" : (D >= 18 ? "小瑕疵 " + d + " 处" : "规范性扣分 " + d.toFixed(0) + " 分"),
+        color: D >= 20 ? "#1f9d63" : (D >= 14 ? "#d98324" : "#c94a4a") }
+    ];
+
+    res.total = Math.max(0, Math.min(100, Math.round(A + B + C + D)));
+    res.issues = detect(text, paras);
+    res.cNotes = cNotes;
+    return res;
+  }
+
+  function gradeOf(total) {
+    if (total >= 90) { return { t: "通透", bg: "#e8f6ee", fg: "#12724a" }; }
+    if (total >= 80) { return { t: "清爽", bg: "#e9f4fb", fg: "#19618f" }; }
+    if (total >= 70) { return { t: "尚可", bg: "#eef2f5", fg: "#4a6072" }; }
+    if (total >= 55) { return { t: "需要改", bg: "#fdf3e5", fg: "#9a5f14" }; }
+    return { t: "读起来累", bg: "#fbeceb", fg: "#9c3535" };
+  }
+
+  function diagnose(res) {
+    if (res.empty) { return "粘贴草稿后自动给出四维评分与改法。"; }
+    var worst = res.dims.slice().sort(function (a, b) {
+      return (a.score / a.max) - (b.score / b.max);
+    })[0];
+    var lead = {
+      A: "最拖后腿的是段落长度",
+      B: "最拖后腿的是句子长度",
+      C: "最拖后腿的是结构层级",
+      D: "最拖后腿的是标点规范"
+    };
+    var advice = {
+      A: "手机上一段超过 4 行，读者就开始弃读，先把长段在句号处拆开。",
+      B: "一句话塞了太多信息，读到后半句已经忘了主语，拆成两句就好。",
+      C: "读者需要一个地方确认自己读到哪：加小标题，并让标题前后各空一行。",
+      D: "中英文挤在一起、半角全角混用会显得潦草，点一次一键修复即可。"
+    };
+    if (res.total >= 95) { return "几乎没有可挑的。可以打开手机真机再看一眼，确认没有 1 行的偏差。"; }
+    return lead[worst.key] + "（" + Math.round(worst.score) + " / " + worst.max + "）：" + advice[worst.key];
+  }
+
+  /* ───────── 渲染 ───────── */
+  function renderPreview(res) {
+    var box = el.pvBody;
+    box.innerHTML = "";
+    if (!res.paras.length) {
+      var ph = document.createElement("div");
+      ph.className = "pv-empty";
+      ph.textContent = "左侧粘入正文，这里就是读者手机上看到的样子";
+      box.appendChild(ph);
+      return;
+    }
+    res.paras.forEach(function (p, i) {
+      var d = document.createElement("div");
+      d.className = "pv-p" + (p.isHeading ? " lv-head" : (p.lines >= 7 ? " lv-bad" : (p.lines >= 5 ? " lv-warn" : "")));
+      d.id = "pv-p-" + i;
+      d.style.fontSize = state.fontSize + "px";
+      d.style.lineHeight = String(state.lineHeight);
+      d.textContent = p.text;
+      box.appendChild(d);
+    });
+  }
+
+  function renderReport(res) {
+    el.stChars.textContent = String(res.chars);
+    el.stParas.textContent = String(res.paras.length);
+    el.stRead.textContent = res.empty ? "0 分钟" : (res.readMin + " 分钟");
+    el.stBad.textContent = String(res.badCount);
+
+    if (res.empty) {
+      el.scoreNum.textContent = "—";
+      el.ringFg.setAttribute("stroke-dashoffset", "282.7");
+      el.ringFg.setAttribute("stroke", "#e3e9ee");
+      el.gradeChip.textContent = "待体检";
+      el.gradeChip.style.background = "#eef2f5";
+      el.gradeChip.style.color = "#6b7f8c";
+      var onlyHead = res.paras.length > 0;
+      el.diag.textContent = onlyHead ? "只检测到一行标题，把正文也粘进来才能算行数。" : "粘贴草稿后自动给出四维评分与改法。";
+      el.dims.innerHTML = "";
+      el.issues.innerHTML = "";
+      var ok0 = document.createElement("div");
+      ok0.className = "ok-state";
+      ok0.appendChild(document.createTextNode(onlyHead ? "正文还是空的。" : "还没有草稿。"));
+      var br = document.createElement("br");
+      ok0.appendChild(br);
+      ok0.appendChild(document.createTextNode("点右上角「载入示例」可以直接看效果。"));
+      el.issues.appendChild(ok0);
+      return;
+    }
+
+    var total = res.total;
+    el.scoreNum.textContent = String(total);
+    var circ = 2 * Math.PI * 45;
+    el.ringFg.setAttribute("stroke-dasharray", circ.toFixed(1));
+    el.ringFg.setAttribute("stroke-dashoffset", (circ * (1 - total / 100)).toFixed(1));
+    var g = gradeOf(total);
+    el.ringFg.setAttribute("stroke", g.fg);
+
+    el.gradeChip.textContent = g.t;
+    el.gradeChip.style.background = g.bg;
+    el.gradeChip.style.color = g.fg;
+    el.diag.textContent = diagnose(res);
+
+    /* 维度 */
+    el.dims.innerHTML = "";
+    res.dims.forEach(function (dm) {
+      var wrap = document.createElement("div");
+      wrap.className = "dim";
+
+      var hd = document.createElement("div");
+      hd.className = "dim-hd";
+      var nm = document.createElement("span");
+      nm.textContent = dm.name;
+      var sc = document.createElement("em");
+      sc.textContent = Math.round(dm.score) + " / " + dm.max;
+      hd.appendChild(nm);
+      hd.appendChild(sc);
+
+      var bar = document.createElement("div");
+      bar.className = "bar";
+      var fill = document.createElement("span");
+      fill.style.width = Math.max(2, (dm.score / dm.max) * 100).toFixed(1) + "%";
+      fill.style.background = dm.color;
+      bar.appendChild(fill);
+
+      var note = document.createElement("div");
+      note.className = "dim-note";
+      note.textContent = dm.note;
+
+      wrap.appendChild(hd);
+      wrap.appendChild(bar);
+      wrap.appendChild(note);
+      el.dims.appendChild(wrap);
+    });
+
+    /* 问题清单 */
+    el.issues.innerHTML = "";
+    var hd2 = document.createElement("div");
+    hd2.className = "issues-hd";
+    var h3 = document.createElement("h3");
+    h3.textContent = res.issues.length ? "改稿清单 · " + res.issues.length + " 条" : "改稿清单";
+    var hint = document.createElement("span");
+    hint.className = "hint";
+    hint.style.fontSize = "11px";
+    hint.style.color = "#93a3ae";
+    hint.textContent = res.issues.length ? "点一条可定位" : "";
+    hd2.appendChild(h3);
+    hd2.appendChild(hint);
+    el.issues.appendChild(hd2);
+
+    if (!res.issues.length) {
+      var ok = document.createElement("div");
+      ok.className = "ok-state";
+      var b = document.createElement("b");
+      b.textContent = "四维全清";
+      ok.appendChild(b);
+      ok.appendChild(document.createTextNode("排版上没有可挑的问题，可以直接发。"));
+      el.issues.appendChild(ok);
+    } else {
+      var order = { bad: 0, warn: 1, info: 2 };
+      res.issues.sort(function (a, b) { return order[a.sev] - order[b.sev]; });
+      res.issues.forEach(function (it) {
+        var row = document.createElement("div");
+        row.className = "issue";
+
+        var dot = document.createElement("i");
+        dot.className = "dot";
+        dot.style.background = it.sev === "bad" ? "#c94a4a" : (it.sev === "warn" ? "#d98324" : "#8fa8b8");
+
+        var bd = document.createElement("div");
+        bd.className = "issue-body";
+
+        var t = document.createElement("div");
+        t.className = "issue-t";
+        t.textContent = it.title;
+
+        var m = document.createElement("div");
+        m.className = "issue-m";
+        m.textContent = it.msg;
+
+        bd.appendChild(t);
+        if (it.quote) {
+          var q = document.createElement("div");
+          q.className = "issue-q";
+          q.textContent = it.quote;
+          bd.appendChild(q);
+        }
+        bd.appendChild(m);
+
+        row.appendChild(dot);
+        row.appendChild(bd);
+
+        if (it.para >= 0) {
+          row.addEventListener("click", function () {
+            var target = document.getElementById("pv-p-" + it.para);
+            if (!target) { return; }
+            target.scrollIntoView({ block: "center", behavior: "smooth" });
+            target.classList.add("flash");
+            setTimeout(function () { target.classList.remove("flash"); }, 1200);
+          });
+        }
+        el.issues.appendChild(row);
+      });
+    }
+  }
+
+  function render() {
+    var res = compute(state.text);
+    state.result = res;
+    renderPreview(res);
+    renderReport(res);
+    el.wordCount.textContent = res.chars + " 字 · " + res.paras.length + " 段";
+    el.btnUndo.disabled = !state.canUndo;
+    save();
+  }
+
+  /* ───────── 一键修复 ───────── */
+  function autoFix(text) {
+    var t = text;
+    t = t.replace(/^[ \t\u3000]+/gm, "");
+    t = t.replace(/[ \t\u3000]+$/gm, "");
+    t = t.replace(/\u3000/g, " ");
+    t = t.replace(/[！!]{2,}/g, "！");
+    t = t.replace(/[？?]{2,}/g, "？");
+    t = t.replace(/([。，、；：])\1+/g, "$1");
+    t = t.replace(/\.{3,}/g, "……");
+    t = t.replace(/。{2,}/g, "……");
+    t = t.replace(/([\u4e00-\u9fa5]),(?=[\u4e00-\u9fa5])/g, "$1，");
+    t = t.replace(/([\u4e00-\u9fa5]),/g, "$1，");
+    t = t.replace(/([\u4e00-\u9fa5])[ \t]*:[ \t]*/g, "$1：");
+    t = t.replace(/([\u4e00-\u9fa5])[ \t]*;[ \t]*(?=[\u4e00-\u9fa5])/g, "$1；");
+    t = t.replace(/([\u4e00-\u9fa5])([A-Za-z0-9%])/g, "$1 $2");
+    t = t.replace(/([A-Za-z0-9%])([\u4e00-\u9fa5])/g, "$1 $2");
+    t = t.replace(/\n{3,}/g, "\n\n");
+
+    /* 长段按句拆到 4 行以内 */
+    var out = t.split("\n").map(function (ln) {
+      var line = ln.replace(/\s+$/, "");
+      if (!line.trim()) { return line; }
+      if (isHeading(line.trim())) { return line; }
+      var cap = capacity() * 4;
+      if (emWidth(line.trim()) <= cap) { return line; }
+
+      var ss = sentences(line.trim());
+      var chunks = [], cur = "";
+      for (var i = 0; i < ss.length; i++) {
+        var trial = cur + ss[i];
+        if (cur && emWidth(trial) > cap) {
+          chunks.push(cur);
+          cur = ss[i];
+        } else {
+          cur = trial;
+        }
+      }
+      if (cur) { chunks.push(cur); }
+
+      /* 只在句末标点处断开：机器不替你改句子语义，
+         单句本身超长的，留在清单里由人来断 */
+      return chunks.join("\n\n");
+    }).join("\n");
+
+    return out.replace(/\n{3,}/g, "\n\n").replace(/^\n+/, "");
+  }
+
+  /* ───────── 交互 ───────── */
+  function toast(msg) {
+    el.toast.textContent = msg;
+    el.toast.classList.add("show");
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function () { el.toast.classList.remove("show"); }, 1900);
+  }
+
+  function setText(t, keepUndo) {
+    if (!keepUndo) {
+      state.lastText = state.text;
+      state.canUndo = true;
+    }
+    state.text = t;
+    el.src.value = t;
+    render();
+  }
+
+  function save() {
+    try {
+      localStorage.setItem("paiban-yisheng-draft", state.text);
+      localStorage.setItem("paiban-yisheng-font", String(state.fontSize));
+      localStorage.setItem("paiban-yisheng-lh", String(state.lineHeight));
+    } catch (e) { /* 隐私模式下忽略 */ }
+  }
+
+  el.src.addEventListener("input", function () {
+    state.text = el.src.value;
+    render();
+  });
+
+  el.btnSample.addEventListener("click", function () {
+    setText(SAMPLE);
+    el.improve.classList.remove("show");
+    toast("已载入示例草稿");
+  });
+
+  el.btnFix.addEventListener("click", function () {
+    if (!state.text.trim()) { toast("先粘一段草稿进来"); return; }
+    var before = state.result && !state.result.empty ? state.result.total : null;
+    var fixed = autoFix(state.text);
+    if (fixed === state.text) { toast("已经没什么可自动修的了"); return; }
+    state.lastText = state.text;
+    state.canUndo = true;
+    state.text = fixed;
+    el.src.value = fixed;
+    render();
+    if (before !== null) {
+      var after = state.result.total;
+      var delta = after - before;
+      el.improve.innerHTML = "";
+      el.improve.classList.add("show");
+      var span = document.createElement("span");
+      span.textContent = delta > 0 ? "一键修复完成，总分提升" : "已按规则整理，总分变化";
+      var b = document.createElement("b");
+      b.textContent = (delta > 0 ? "+" : "") + delta + " 分（" + before + " → " + after + "）";
+      el.improve.appendChild(span);
+      el.improve.appendChild(b);
+    }
+    toast("已按规则修复，可撤销");
+  });
+
+  el.btnUndo.addEventListener("click", function () {
+    if (!state.canUndo) { return; }
+    state.text = state.lastText;
+    el.src.value = state.text;
+    state.canUndo = false;
+    el.improve.classList.remove("show");
+    render();
+    toast("已撤销");
+  });
+
+  el.btnClear.addEventListener("click", function () {
+    if (!state.text) { return; }
+    state.lastText = state.text;
+    state.canUndo = true;
+    state.text = "";
+    el.src.value = "";
+    el.improve.classList.remove("show");
+    render();
+  });
+
+  el.btnCopy.addEventListener("click", function () {
+    if (!state.text) { toast("还没有内容"); return; }
+    var done = function () { toast("修订稿已复制"); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(state.text).then(done, function () { legacyCopy(); });
+    } else { legacyCopy(); }
+    function legacyCopy() {
+      var ta = document.createElement("textarea");
+      ta.value = state.text;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand("copy"); done(); } catch (e) { toast("复制失败，请手动全选"); }
+      document.body.removeChild(ta);
+    }
+  });
+
+  el.btnRules.addEventListener("click", function () { el.mask.classList.add("show"); });
+  el.btnCloseRules.addEventListener("click", function () { el.mask.classList.remove("show"); });
+  el.mask.addEventListener("click", function (e) {
+    if (e.target === el.mask) { el.mask.classList.remove("show"); }
+  });
+
+  el.segFont.addEventListener("click", function (e) {
+    var b = e.target.closest("button");
+    if (!b) { return; }
+    state.fontSize = parseInt(b.getAttribute("data-v"), 10);
+    Array.prototype.forEach.call(el.segFont.children, function (c) { c.classList.remove("on"); });
+    b.classList.add("on");
+    render();
+  });
+  el.segLh.addEventListener("click", function (e) {
+    var b = e.target.closest("button");
+    if (!b) { return; }
+    state.lineHeight = parseFloat(b.getAttribute("data-v"));
+    Array.prototype.forEach.call(el.segLh.children, function (c) { c.classList.remove("on"); });
+    b.classList.add("on");
+    renderPreview(state.result);
+  });
+
+  /* ───────── 导出体检卡 ───────── */
+  el.btnExport.addEventListener("click", function () {
+    var res = state.result;
+    if (!res || res.empty) { toast("先载入或粘贴一段草稿"); return; }
+    drawCard(res);
+  });
+
+  function roundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+  }
+
+  function wrapText(ctx, text, x, y, maxW, lh, maxLines) {
+    var line = "", n = 0;
+    for (var i = 0; i < text.length; i++) {
+      var test = line + text.charAt(i);
+      if (ctx.measureText(test).width > maxW && line) {
+        ctx.fillText(line, x, y);
+        line = text.charAt(i);
+        y += lh;
+        n++;
+        if (maxLines && n >= maxLines) { return y; }
+      } else { line = test; }
+    }
+    if (line) { ctx.fillText(line, x, y); y += lh; }
+    return y;
+  }
+
+  function drawCard(res) {
+    var W = 1080, H = 1400;
+    var cv = document.createElement("canvas");
+    cv.width = W; cv.height = H;
+    var ctx = cv.getContext("2d");
+    var FONT = 'system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif';
+
+    var g0 = ctx.createLinearGradient(0, 0, 0, H);
+    g0.addColorStop(0, "#eef4f7");
+    g0.addColorStop(1, "#f7fafb");
+    ctx.fillStyle = g0;
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.fillStyle = "#ffffff";
+    roundRect(ctx, 60, 60, W - 120, H - 120, 40);
+    ctx.fill();
+
+    ctx.fillStyle = "#0f9a9a";
+    roundRect(ctx, 60, 60, W - 120, 10, 5);
+    ctx.fill();
+
+    var padX = 128;
+    ctx.textAlign = "left";
+    ctx.fillStyle = "#13293d";
+    ctx.font = "600 44px " + FONT;
+    ctx.fillText("排版体检报告", padX, 196);
+
+    ctx.fillStyle = "#8b9aa5";
+    ctx.font = "26px " + FONT;
+    var d = new Date();
+    var dateStr = d.getFullYear() + "." + ("0" + (d.getMonth() + 1)).slice(-2) + "." + ("0" + d.getDate()).slice(-2);
+    ctx.fillText(dateStr + " · 公众号移动端阅读", padX, 244);
+
+    /* 分数 */
+    var g = gradeOf(res.total);
+    ctx.fillStyle = "#13293d";
+    ctx.font = "700 168px " + FONT;
+    ctx.fillText(String(res.total), padX - 6, 430);
+    var wScore = ctx.measureText(String(res.total)).width;
+    ctx.fillStyle = "#a9b8c2";
+    ctx.font = "36px " + FONT;
+    ctx.fillText("/ 100", padX + wScore + 14, 424);
+
+    ctx.fillStyle = g.bg;
+    roundRect(ctx, padX + wScore + 150, 320, 190, 62, 31);
+    ctx.fill();
+    ctx.fillStyle = g.fg;
+    ctx.font = "600 30px " + FONT;
+    ctx.textAlign = "center";
+    ctx.fillText(g.t, padX + wScore + 245, 361);
+    ctx.textAlign = "left";
+
+    /* 四维 */
+    var y = 536;
+    res.dims.forEach(function (dm) {
+      ctx.fillStyle = "#13293d";
+      ctx.font = "600 32px " + FONT;
+      ctx.fillText(dm.name, padX, y);
+      ctx.textAlign = "right";
+      ctx.fillStyle = "#6b7f8c";
+      ctx.font = "30px " + FONT;
+      ctx.fillText(Math.round(dm.score) + " / " + dm.max, W - padX, y);
+      ctx.textAlign = "left";
+
+      var barY = y + 24, barW = W - padX * 2;
+      ctx.fillStyle = "#eef2f5";
+      roundRect(ctx, padX, barY, barW, 16, 8);
+      ctx.fill();
+      ctx.fillStyle = dm.color;
+      var fw = Math.max(16, barW * (dm.score / dm.max));
+      roundRect(ctx, padX, barY, fw, 16, 8);
+      ctx.fill();
+      y += 108;
+    });
+
+    /* 诊断 */
+    ctx.fillStyle = "#f4f8fa";
+    roundRect(ctx, padX - 20, y + 10, W - (padX - 20) * 2, 220, 22);
+    ctx.fill();
+
+    ctx.fillStyle = "#0f9a9a";
+    ctx.font = "600 26px " + FONT;
+    ctx.fillText("诊断", padX + 8, y + 66);
+
+    ctx.fillStyle = "#3d5566";
+    ctx.font = "30px " + FONT;
+    wrapText(ctx, diagnose(res), padX + 8, y + 122, W - padX * 2 - 30, 50, 2);
+
+    /* 明细 */
+    ctx.textAlign = "right";
+    ctx.fillStyle = "#8b9aa5";
+    ctx.font = "26px " + FONT;
+    ctx.fillText(res.paras.length + " 段 · " + res.chars + " 字 · 超长段 " + res.overCount + " 处", W - padX, H - 116);
+    ctx.textAlign = "left";
+    ctx.fillText("排版医生 · 移动端阅读体检", padX, H - 116);
+
+    try {
+      var url = cv.toDataURL("image/png");
+      var a = document.createElement("a");
+      a.href = url;
+      a.download = "排版体检报告-" + res.total + "分.png";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      toast("体检卡已导出，可直接发到社媒");
+    } catch (e) {
+      toast("当前浏览器不支持导出，请截图使用");
+    }
+  }
+
+  /* ───────── 启动 ───────── */
+  (function init() {
+    var draft = "";
+    try {
+      draft = localStorage.getItem("paiban-yisheng-draft") || "";
+      var f = parseInt(localStorage.getItem("paiban-yisheng-font") || "15", 10);
+      var lh = parseFloat(localStorage.getItem("paiban-yisheng-lh") || "1.75");
+      if (f >= 14 && f <= 17) {
+        state.fontSize = f;
+        Array.prototype.forEach.call(el.segFont.children, function (c) {
+          c.classList.toggle("on", c.getAttribute("data-v") === String(f));
+        });
+      }
+      if (lh >= 1.6 && lh <= 2.0) {
+        state.lineHeight = lh;
+        Array.prototype.forEach.call(el.segLh.children, function (c) {
+          c.classList.toggle("on", parseFloat(c.getAttribute("data-v")) === lh);
+        });
+      }
+    } catch (e) { draft = ""; }
+
+    state.text = draft;
+    el.src.value = draft;
+    render();
+  })();
+})();
+</script>
+</body>
+</html>

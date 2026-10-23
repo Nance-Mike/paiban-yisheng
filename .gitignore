@@ -1,0 +1,16 @@
+# 操作系统
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# 编辑器
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 临时文件与验证产物
+_c.js
+*.log
+*.tmp
+node_modules/
