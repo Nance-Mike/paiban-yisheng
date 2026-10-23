@@ -34,7 +34,7 @@
 ### 方式二：本地起服务（如需在手机上预览）
 
 ```bash
-cd paiban-yisheng
+# 在仓库根目录执行
 python -m http.server 8000
 # 浏览器打开 http://localhost:8000
 # 手机与电脑同一局域网时，可用 http://<本机IP>:8000 在真机上验收
