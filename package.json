@@ -16,6 +16,7 @@
     "vanilla-js"
   ],
   "license": "MIT",
+  "author": "Steven Xiao (https://github.com/Nance-Mike)",
   "scripts": {
     "test": "node tests/run-tests.js"
   },

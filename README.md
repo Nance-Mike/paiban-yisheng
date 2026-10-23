@@ -2,9 +2,7 @@
 
 把公众号草稿粘进去，算出**每一段在手机上到底占几行**，给出四维评分、逐条可定位的改稿清单，以及一个只整理格式、不改写语义的「一键修复」。
 
-在线体验：<https://workbuddy.link/p/jbhmStKun7Y2C1rHGfz2HB>
-
-镜像站点：<https://nance-mike.github.io/paiban-yisheng/>（GitHub Pages，内容与本仓库 `index.html` 一致，可作长期链接）
+在线体验：<https://nance-mike.github.io/paiban-yisheng/>
 
 ![体检前：75 分](docs/screenshots/01-before-75.png)
 
@@ -95,7 +93,6 @@ paiban-yisheng/
 ├── .gitignore
 ├── docs/
 │   ├── scoring-spec.md        # 评分算法、阈值、扣分表、可配置项
-│   ├── submission-pack.md     # 「1024 造物挑战」投稿材料
 │   └── screenshots/           # 四张界面截图
 ├── tests/
 │   └── run-tests.js           # 冒烟测试：29 条断言
@@ -146,10 +143,10 @@ npm test             # 29 条断言：分数基线、幂等性、规则开关、
 - 草稿存在本机浏览器，换浏览器或清缓存会丢失，暂不支持导入导出全部草稿。
 - 不评价内容质量，只衡量阅读体验。
 
-## 竞赛背景
+## 作者
 
-本项目为 WorkBuddy「1024 造物挑战」程序员节应用创作大赛参赛作品（投稿征集 2026-10-21 至 2026-11-01）。投稿材料与社媒文案见 [`docs/submission-pack.md`](docs/submission-pack.md)。
+Steven Xiao（[@Nance-Mike](https://github.com/Nance-Mike)）——设计、实现与文档均由作者独立完成。
 
 ## 许可
 
-[MIT](LICENSE)
+[MIT](LICENSE) · Copyright (c) 2026 Steven Xiao
