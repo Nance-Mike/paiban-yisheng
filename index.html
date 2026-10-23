@@ -104,7 +104,7 @@
   .seg{display:inline-flex;background:#eef3f6;border-radius:8px;padding:2px}
   .seg button{border:0;background:transparent;padding:4px 9px;font-size:11.5px;color:var(--sub);border-radius:6px}
   .seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(19,41,61,.1)}
-  .device{margin:16px auto 6px;width:375px;max-width:calc(100% - 20px);border-radius:22px;border:1px solid #d7e0e7;background:#fff;box-shadow:0 10px 30px rgba(19,41,61,.09);overflow:hidden}
+  .device{margin:16px auto 6px;width:375px;max-width:calc(100% - 20px);border-radius:22px;border:1px solid #d7e0e7;background:#fff;box-shadow:0 10px 30px rgba(19,41,61,.09);overflow:hidden;transition:width .22s}
   .device-bar{height:30px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--line-2);background:#fafcfd}
   .device-bar span{font-size:10.5px;color:#9aacb8;letter-spacing:.14em}
   .pv-body{height:min(560px,62vh);overflow-y:auto;padding:16px;scrollbar-width:thin}
@@ -132,8 +132,8 @@
   .ring-num s{text-decoration:none;font-size:10.5px;color:var(--sub);margin-top:3px;letter-spacing:.06em}
   .grade{padding:3px 9px;border-radius:999px;font-size:11.5px;font-weight:600;display:inline-block}
   .diag{font-size:12.5px;line-height:1.65;color:var(--ink-2);margin-top:6px}
-  .stats{display:flex;gap:12px;flex-wrap:wrap;padding:0 16px 14px;font-size:11.5px;color:var(--sub)}
-  .stats b{color:var(--ink);font-weight:650;font-variant-numeric:tabular-nums}
+  .stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px 10px;padding:0 16px 14px;font-size:11px;color:var(--sub)}
+  .stats b{display:block;color:var(--ink);font-weight:650;font-size:13.5px;font-variant-numeric:tabular-nums;margin-top:1px;letter-spacing:-.01em}
 
   .dims{padding:4px 16px 8px;border-top:1px solid var(--line-2)}
   .dim{padding:9px 0}
@@ -160,6 +160,55 @@
   .improve{display:none;margin:0 16px 14px;padding:9px 12px;border-radius:10px;background:var(--good-soft);color:#12724a;font-size:12px;align-items:center;justify-content:space-between;gap:8px}
   .improve.show{display:flex}
   .improve b{font-variant-numeric:tabular-nums}
+  .improve .i-act{display:flex;gap:6px;flex:none}
+  .improve button{border:1px solid #bfe3cf;background:#fff;color:#12724a;padding:3px 9px;border-radius:7px;font-size:11.5px}
+  .improve button:hover{border-color:#8fcfad;background:#f4fcf7;color:#0d5c3b}
+
+  .linkbtn{background:none;border:0;border-bottom:1px dashed #c9d4dc;border-radius:0;padding:0;color:#7d8f9c;font-size:11.5px;margin-top:7px;display:inline-block}
+  .linkbtn:hover{background:none;color:var(--ink-2);border-bottom-color:#9fb0bc}
+
+  /* ── 设置 / 草稿 / 导出 / 对比 ── */
+  .modal.wide{max-width:680px}
+  .row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:11px 0;border-bottom:1px solid var(--line-2)}
+  .row:last-child{border-bottom:0}
+  .row .r-main{min-width:0}
+  .row .r-title{font-size:12.5px;color:var(--ink)}
+  .row .r-sub{font-size:11px;color:var(--sub);margin-top:2px;line-height:1.55}
+  .switch{position:relative;width:38px;height:22px;flex:none}
+  .switch input{position:absolute;inset:0;opacity:0;width:100%;height:100%;margin:0;cursor:pointer}
+  .switch i{position:absolute;inset:0;border-radius:999px;background:#dbe3e9;transition:.18s;pointer-events:none}
+  .switch i::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(19,41,61,.2);transition:.18s}
+  .switch input:checked + i{background:var(--teal)}
+  .switch input:checked + i::after{transform:translateX(16px)}
+  .switch input:focus-visible + i{outline:2px solid #7fb8f0;outline-offset:2px}
+  .opt-grid{display:flex;gap:8px;flex-wrap:wrap}
+  .opt{border:1px solid var(--line);background:#fff;border-radius:8px;padding:5px 11px;font-size:12px;color:var(--sub)}
+  .opt.on{border-color:var(--teal);background:var(--teal-soft);color:#0a6f6f;font-weight:600}
+
+  .draft{display:flex;align-items:center;gap:10px;padding:9px 6px;border-bottom:1px solid var(--line-2);cursor:pointer;border-radius:8px}
+  .draft:hover{background:#fbfcfd}
+  .draft.on{background:var(--teal-soft)}
+  .draft-main{min-width:0;flex:1}
+  .draft-t{font-size:13px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .draft-m{font-size:11px;color:var(--sub);margin-top:3px}
+  .draft-del{border:0;background:transparent;color:#b9c4cc;font-size:12px;padding:4px 7px;border-radius:6px;flex:none}
+  .draft-del:hover{background:#fbeceb;color:#c94a4a;border-color:transparent}
+
+  .exp{display:grid;gap:8px}
+  .exp button{display:block;text-align:left;padding:11px 13px;border-radius:10px;width:100%}
+  .exp b{display:block;font-size:12.5px;color:var(--ink);font-weight:650}
+  .exp span{display:block;font-size:11px;color:var(--sub);margin-top:3px;line-height:1.55}
+
+  .diff{padding:2px 0;max-height:52vh;overflow-y:auto}
+  .d-block{margin-bottom:14px}
+  .d-tag{font-size:11px;color:var(--sub);margin-bottom:5px}
+  .d-old,.d-new{font-size:12.5px;line-height:1.85;padding:8px 10px;border-radius:8px;white-space:pre-wrap;word-break:break-word;background:#fafcfd}
+  .d-old{color:#5f6b74;border-left:3px solid #e2a49d;margin-bottom:5px}
+  .d-new{color:#37505f;border-left:3px solid #8ac4a3}
+  .d-old del{background:#f8cfca;color:#8d3f38;text-decoration:none;border-radius:3px}
+  .d-new ins{background:#c4e7d3;color:#1f5b3c;text-decoration:none;border-radius:3px}
+  .d-same{font-size:12px;color:#a2b1bb;padding:2px 10px 8px}
+  .d-empty{font-size:12.5px;color:var(--sub);text-align:center;padding:24px 10px}
 
   /* ── 说明弹层 ── */
   .mask{position:fixed;inset:0;background:rgba(19,41,61,.42);display:none;z-index:60;padding:20px;overflow-y:auto}
@@ -215,8 +264,9 @@
   </div>
   <div class="topacts">
     <button id="btnSample" type="button">载入示例</button>
-    <button id="btnRules" type="button">评分规则</button>
-    <button id="btnExport" class="primary" type="button">导出体检卡</button>
+    <button id="btnDrafts" type="button">草稿库</button>
+    <button id="btnSettings" type="button">设置</button>
+    <button id="btnExport" class="primary" type="button">导出</button>
   </div>
 </header>
 
@@ -261,15 +311,15 @@
       </div>
     </div>
     <div class="device">
-      <div class="device-bar"><span>375 px</span></div>
+      <div class="device-bar"><span id="deviceLabel">375 px</span></div>
       <div class="pv-body" id="pvBody">
         <div class="pv-empty">左侧粘入正文，这里就是读者手机上看到的样子</div>
       </div>
     </div>
     <div class="legend">
-      <span><i style="background:#1f9d63"></i>4 行以内</span>
-      <span><i style="background:#eda83f"></i>5—6 行</span>
-      <span><i style="background:#c94a4a"></i>7 行以上</span>
+      <span><i style="background:#1f9d63"></i><span id="lg1">4 行以内</span></span>
+      <span><i style="background:#eda83f"></i><span id="lg2">5—6 行</span></span>
+      <span><i style="background:#c94a4a"></i><span id="lg3">7 行以上</span></span>
     </div>
   </section>
 
@@ -290,13 +340,16 @@
       <div style="min-width:0">
         <div id="gradeChip" class="grade" style="background:#eef2f5;color:#6b7f8c">待体检</div>
         <div class="diag" id="diag">粘贴草稿后自动给出四维评分与改法。</div>
+        <button class="linkbtn" id="btnRules" type="button">评分口径与当前规范 ›</button>
       </div>
     </div>
     <div class="stats">
-      <span>字数 <b id="stChars">0</b></span>
-      <span>段落 <b id="stParas">0</b></span>
-      <span>预估阅读 <b id="stRead">0 分钟</b></span>
-      <span>超长段 <b id="stBad">0</b></span>
+      <span>字数<b id="stChars">0</b></span>
+      <span>段落<b id="stParas">0</b></span>
+      <span>预估阅读<b id="stRead">0 分钟</b></span>
+      <span>平均段长<b id="stAvgP">0 行</b></span>
+      <span>平均句长<b id="stAvgS">0 字</b></span>
+      <span>最长段<b id="stMaxL">0 行</b></span>
     </div>
     <div class="improve" id="improve"></div>
     <div class="dims" id="dims"></div>
@@ -317,7 +370,7 @@
     <div class="m-sub">满分 100 分，四个维度相加。分数只衡量「在手机上读起来累不累」，不评价内容。</div>
 
     <h4>一、段落呼吸感 · 30 分</h4>
-    <p>按你当前选的字号，把每段换算成手机上的实际行数：4 行以内满分，5 行扣分，7 行以上接近零分。手机阅读是「扫」不是「读」，一段太长读者会直接跳过。</p>
+    <p>按当前设置的字号与屏宽，把每段换算成手机上的实际行数：在单段行数上限内满分，超出一行扣一次，超出三行以上接近零分。上限默认 4 行，可在「设置」里改成 3 行或 5 行。手机阅读是「扫」不是「读」，一段太长读者会直接跳过。</p>
 
     <h4>二、句子长度 · 25 分</h4>
     <p>一逗到底的长句会让人忘记主语。30 字以内满分，超过 40 字开始明显扣分，超过 70 字接近零分。一句话只说一件事。</p>
@@ -334,13 +387,96 @@
     <p>中英文之间缺空格、中文句子用半角逗号、连用感叹号问号、用三个点代替省略号、段首段尾多余空格、连续空行——每处按权重扣分。</p>
 
     <h4>口径说明</h4>
-    <p>行数估算：可用宽度 = 375px 屏宽 − 左右各 16px 内边距 = 343px，除以当前字号得到每行可容纳的汉字数（15px 时约 22.8 字）。英文与数字按半个汉字宽计算。微信实际渲染受机型与字体影响，通常有 ±1 行误差，本工具用于快速自查，不替代真机预览。</p>
+    <p>行数估算：可用宽度 = 当前屏宽（默认 375px）− 左右各 16px 内边距，除以当前字号得到每行可容纳的汉字数（375px、15px 时约 22.8 字）。英文与数字按半个汉字宽计算。微信实际渲染受机型与字体影响，通常有 ±1 行误差，本工具用于快速自查，不替代真机预览。</p>
+    <p>标点与规范维度只统计「设置」里开启的规则；关掉的规则既不检查，也不会被一键修复改动。</p>
 
     <button class="close primary" id="btnCloseRules" type="button">开始体检</button>
   </div>
 </div>
 
+<!-- 设置：屏宽 / 行数上限 / 规则开关 -->
+<div class="mask" id="maskSet">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="setTitle">
+    <h3 id="setTitle">体检设置</h3>
+    <div class="m-sub">规范跟着账号走。改动即时生效，保存在本机浏览器。</div>
+
+    <h4>预览屏宽</h4>
+    <div class="opt-grid" id="setWidth">
+      <button class="opt" type="button" data-v="360">360</button>
+      <button class="opt on" type="button" data-v="375">375</button>
+      <button class="opt" type="button" data-v="390">390</button>
+      <button class="opt" type="button" data-v="414">414</button>
+    </div>
+
+    <h4>单段行数上限</h4>
+    <div class="opt-grid" id="setLimit">
+      <button class="opt" type="button" data-v="3">3 行</button>
+      <button class="opt on" type="button" data-v="4">4 行</button>
+      <button class="opt" type="button" data-v="5">5 行</button>
+    </div>
+
+    <h4>检查项与自动修复范围</h4>
+    <div id="ruleList"></div>
+
+    <div style="display:flex;gap:8px;margin-top:18px">
+      <button type="button" id="btnResetRules" style="flex:1">恢复默认</button>
+      <button type="button" class="primary" data-close style="flex:1">完成</button>
+    </div>
+  </div>
+</div>
+
+<!-- 草稿库 -->
+<div class="mask" id="maskDraft">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="draftTitle">
+    <h3 id="draftTitle">草稿库</h3>
+    <div class="m-sub">存在本机浏览器，不上传。切换草稿前会自动保存当前这篇。</div>
+    <div id="draftList"></div>
+    <div style="display:flex;gap:8px;margin-top:18px">
+      <button type="button" id="btnNewDraft" class="primary" style="flex:1">新建草稿</button>
+      <button type="button" data-close style="flex:1">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- 导出 -->
+<div class="mask" id="maskExp">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="expTitle">
+    <h3 id="expTitle">导出</h3>
+    <div class="m-sub">全部在本机完成，不经过网络。</div>
+    <div class="exp">
+      <button type="button" id="btnExpCard">
+        <b>体检卡图片</b>
+        <span>1080×1400 PNG，含总分、四维条与诊断，适合存档或发社媒</span>
+      </button>
+      <button type="button" id="btnExpHtml">
+        <b>公众号富文本</b>
+        <span>带内联样式的段落，粘进公众号后台或秀米即可保留字号与行距</span>
+      </button>
+      <button type="button" id="btnExpMd">
+        <b>Markdown</b>
+        <span>保留小标题层级，适合存进笔记、Notion 或仓库</span>
+      </button>
+      <button type="button" id="btnExpTxt">
+        <b>纯文本修订稿</b>
+        <span>只有段落与换行，粘到任何编辑器都不会带格式</span>
+      </button>
+    </div>
+    <button class="close" data-close type="button">关闭</button>
+  </div>
+</div>
+
+<!-- 修复前后对比 -->
+<div class="mask" id="maskDiff">
+  <div class="modal wide" role="dialog" aria-modal="true" aria-labelledby="diffTitle">
+    <h3 id="diffTitle">修复前后对比</h3>
+    <div class="m-sub" id="diffSub">红色是删掉的，绿色是加上的。</div>
+    <div class="diff" id="diffBody"></div>
+    <button class="close" data-close type="button">关闭</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
+<div id="liveRegion" aria-live="polite" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap"></div>
 
 <noscript>
   <div style="padding:24px;text-align:center;font-size:14px;color:#3d5566">
@@ -366,6 +502,8 @@
 (function () {
   "use strict";
 
+  var VERSION = "1.1.0";
+
   var SAMPLE = [
     "每年一到开学季,各个组织的公众号都会集中更新一批推送。很多同学第一次上手,最容易犯的错误不是内容不好,而是把一整段话硬塞进一个段落里!!",
     "我们在后台看到最多的两种情况是:一段话超过8行,读者在手机上滑到一半就退出;标题层级混乱,读者不知道自己读到哪一部分。",
@@ -378,20 +516,64 @@
     "按这三条改一遍,同一篇稿子的平均阅读完成率通常能提升20%以上。"
   ].join("\n");
 
+  /* 可配置项：规范跟着账号走，不写死在代码里 */
+  var DEFAULT_RULES = {
+    spacing: true,
+    punct: true,
+    repeat: true,
+    ellipsis: true,
+    trailingEN: true,
+    whitespace: true,
+    blanks: true,
+    splitLong: true
+  };
+
+  var RULE_META = [
+    { k: "spacing", t: "中英文之间补空格", d: "「超过8行」→「超过 8 行」，数字与百分号同样处理" },
+    { k: "punct", t: "中文标点转全角", d: "中文句子里的 , : ; 转成 ，：；" },
+    { k: "repeat", t: "连用标点归一", d: "「!!」「。。」只留一个" },
+    { k: "ellipsis", t: "省略号规范", d: "三个英文句点改成「……」" },
+    { k: "trailingEN", t: "中文句末英文标点", d: "句尾的 . ! ? 改成 。！？" },
+    { k: "whitespace", t: "清理多余空白", d: "段首段尾空格、全角空格" },
+    { k: "blanks", t: "合并连续空行", d: "三个以上连续空行归一为一个空行" },
+    { k: "splitLong", t: "长段按句拆分", d: "超过行数上限的段落，只在句末标点处断开" }
+  ];
+
   var state = {
     text: "",
     fontSize: 15,
     lineHeight: 1.75,
+    viewport: 375,
+    lineLimit: 4,
+    rules: cloneRules(DEFAULT_RULES),
     lastText: "",
     canUndo: false,
-    beforeScore: null,
-    result: null
+    result: null,
+    snapshot: null
   };
 
+  function cloneRules(src) {
+    var o = {};
+    for (var k in DEFAULT_RULES) {
+      if (Object.prototype.hasOwnProperty.call(DEFAULT_RULES, k)) {
+        o[k] = src && typeof src[k] === "boolean" ? src[k] : DEFAULT_RULES[k];
+      }
+    }
+    return o;
+  }
+
+  var liveAnnounce = null;
+
   var el = {};
-  ["src","wordCount","pvBody","scoreNum","ringFg","gradeChip","diag","stChars","stParas","stRead","stBad",
-   "dims","issues","improve","btnSample","btnRules","btnExport","btnFix","btnUndo","btnCopy","btnClear",
-   "segFont","segLh","mask","btnCloseRules","toast"].forEach(function (id) {
+  ["src", "wordCount", "pvBody", "scoreNum", "ringFg", "gradeChip", "diag",
+   "stChars", "stParas", "stRead", "stAvgP", "stAvgS", "stMaxL",
+   "dims", "issues", "improve", "btnSample", "btnRules", "btnExport", "btnFix", "btnUndo",
+   "btnCopy", "btnClear", "segFont", "segLh", "mask", "btnCloseRules", "toast",
+   "deviceLabel", "lg1", "lg2", "lg3", "liveRegion",
+   "btnDrafts", "btnSettings", "maskSet", "setWidth", "setLimit", "ruleList", "btnResetRules",
+   "maskDraft", "draftList", "btnNewDraft",
+   "maskExp", "btnExpCard", "btnExpHtml", "btnExpMd", "btnExpTxt",
+   "maskDiff", "diffBody", "diffSub"].forEach(function (id) {
     el[id] = document.getElementById(id);
   });
 
@@ -410,7 +592,7 @@
     }
     return w;
   }
-  function capacity() { return (375 - 32) / state.fontSize; }
+  function capacity() { return (state.viewport - 32) / state.fontSize; }
   function estLines(s) {
     var w = emWidth(s);
     if (w <= 0) { return 0; }
@@ -447,24 +629,26 @@
 
   /* ───────── 问题检测 ───────── */
   function detect(text, paras) {
+    var R = state.rules;
+    var limit = state.lineLimit;
     var issues = [];
     function add(sev, para, title, msg, quote) {
       issues.push({ sev: sev, para: para, title: title, msg: msg, quote: quote || "" });
     }
 
     paras.forEach(function (p, idx) {
-      if (p.lines >= 5 && !p.isHeading) {
+      if (!p.isHeading && p.lines > limit) {
         var oneSent = p.sentences.length <= 1;
         var msg;
         if (oneSent) {
           msg = "这一整段其实只有一句话，中间没有可以断的地方。需要你按语意自己断一次，或者删掉从句。";
-        } else if (p.lines >= 7) {
+        } else if (p.lines >= limit + 3) {
           msg = "手机上这一段要滑一屏半，读者多数会跳过。建议在句号处拆成 2—3 段。";
         } else {
           msg = "略长。在第一个句号处断开即可。";
         }
-        add(p.lines >= 7 ? "bad" : "warn", idx,
-          "第 " + (idx + 1) + " 段约 " + p.lines + " 行，超过 4 行",
+        add(p.lines >= limit + 3 ? "bad" : "warn", idx,
+          "第 " + (idx + 1) + " 段约 " + p.lines + " 行，超过 " + limit + " 行",
           msg, p.text.slice(0, 34));
       }
       p.sentences.forEach(function (s) {
@@ -478,62 +662,75 @@
       });
     });
 
-    /* 中英文之间缺空格 */
     var raw = text;
-    var noSpaceA = raw.match(/[\u4e00-\u9fa5][A-Za-z0-9]/g) || [];
-    var noSpaceB = raw.match(/[A-Za-z0-9][\u4e00-\u9fa5]/g) || [];
-    var noSpace = noSpaceA.length + noSpaceB.length;
-    if (noSpace > 0) {
-      add(noSpace > 4 ? "warn" : "info", -1,
-        "中英文 / 数字之间缺空格 " + noSpace + " 处",
-        "「超过8行」应写作「超过 8 行」。一键修复会自动补齐。",
-        (noSpaceA[0] || noSpaceB[0] || ""));
+
+    /* 中英文之间缺空格 */
+    if (R.spacing) {
+      var noSpaceA = raw.match(/[\u4e00-\u9fa5][A-Za-z0-9%]/g) || [];
+      var noSpaceB = raw.match(/[A-Za-z0-9%][\u4e00-\u9fa5]/g) || [];
+      var noSpace = noSpaceA.length + noSpaceB.length;
+      if (noSpace > 0) {
+        add(noSpace > 4 ? "warn" : "info", -1,
+          "中英文 / 数字之间缺空格 " + noSpace + " 处",
+          "「超过8行」应写作「超过 8 行」。一键修复会自动补齐。",
+          (noSpaceA[0] || noSpaceB[0] || ""));
+      }
     }
 
-    /* 中文句中的半角逗号 */
-    var halfComma = (raw.match(/[\u4e00-\u9fa5],|,[\u4e00-\u9fa5]/g) || []).length;
-    if (halfComma > 0) {
-      add("warn", -1, "中文句子里用了半角逗号 " + halfComma + " 处",
-        "中文正文请用全角「，」。半角逗号在手机上会挤成一条细线。", "");
+    /* 中文句中的半角标点 */
+    if (R.punct) {
+      var halfComma = (raw.match(/[\u4e00-\u9fa5],|,[\u4e00-\u9fa5]|[\u4e00-\u9fa5][ \t]*:[ \t]*[\u4e00-\u9fa5]|[\u4e00-\u9fa5][ \t]*;[ \t]*[\u4e00-\u9fa5]/g) || []).length;
+      if (halfComma > 0) {
+        add("warn", -1, "中文句子里用了半角标点 " + halfComma + " 处",
+          "中文正文请用全角「，：；」。半角标点在手机上会挤成一条细线。", "");
+      }
     }
 
     /* 连续标点 */
-    var repeatMark = raw.match(/[！!]{2,}|[？?]{2,}|[。]{2,}|[，,]{2,}/g) || [];
-    if (repeatMark.length > 0) {
-      add("warn", -1, "连用标点 " + repeatMark.length + " 处",
-        "「!!」「。。」会显得情绪失控。留一个就好。", repeatMark.slice(0, 3).join(" / "));
+    if (R.repeat) {
+      var repeatMark = raw.match(/[！!]{2,}|[？?]{2,}|[。]{2,}|[，,]{2,}/g) || [];
+      if (repeatMark.length > 0) {
+        add("warn", -1, "连用标点 " + repeatMark.length + " 处",
+          "「!!」「。。」会显得情绪失控。留一个就好。", repeatMark.slice(0, 3).join(" / "));
+      }
     }
 
     /* 省略号 */
-    var dots = raw.match(/\.{3,}|。{3,}/g) || [];
-    if (dots.length > 0) {
-      add("info", -1, "省略号写法不规范 " + dots.length + " 处",
-        "统一写成「……」两个全角省略号，不要用三个英文句点。", dots[0]);
+    if (R.ellipsis) {
+      var dots = raw.match(/\.{3,}|。{3,}/g) || [];
+      if (dots.length > 0) {
+        add("info", -1, "省略号写法不规范 " + dots.length + " 处",
+          "统一写成「……」两个全角省略号，不要用三个英文句点。", dots[0]);
+      }
     }
 
-    /* 段首 / 段尾空格 */
-    var leadSpace = (text.match(/^[ \t\u3000]+/gm) || []).length;
-    var tailSpace = (text.match(/[ \t\u3000]+$/gm) || []).length;
-    if (leadSpace + tailSpace > 0) {
-      add("info", -1, "段首 / 段尾多余空白 " + (leadSpace + tailSpace) + " 处",
-        "公众号是自动首行缩进的，手打空格会让整段错位。", "");
-    }
-    if (/\u3000/.test(raw)) {
-      add("info", -1, "含有全角空格",
-        "全角空格在部分机型上宽度不一致，建议换成普通空格。", "");
+    /* 多余空白 */
+    if (R.whitespace) {
+      var leadSpace = (text.match(/^[ \t\u3000]+/gm) || []).length;
+      var tailSpace = (text.match(/[ \t\u3000]+$/gm) || []).length;
+      if (leadSpace + tailSpace > 0) {
+        add("info", -1, "段首 / 段尾多余空白 " + (leadSpace + tailSpace) + " 处",
+          "公众号是自动首行缩进的，手打空格会让整段错位。", "");
+      }
+      if (/\u3000/.test(raw)) {
+        add("info", -1, "含有全角空格",
+          "全角空格在部分机型上宽度不一致，建议换成普通空格。", "");
+      }
     }
 
     /* 连续空行 */
-    if (/\n{3,}/.test(raw)) {
+    if (R.blanks && /\n{3,}/.test(raw)) {
       add("info", -1, "存在连续空行",
         "连续两个以上空行在手机上会撑出大片留白，保留一个即可。", "");
     }
 
     /* 英文标点收尾 */
-    var enEnd = (raw.match(/[\u4e00-\u9fa5]\s*[.;:!?](?=\s|$)/gm) || []).length;
-    if (enEnd > 0) {
-      add("info", -1, "中文句子用英文标点收尾 " + enEnd + " 处",
-        "改成全角「。」「，」更符合中文阅读习惯。", "");
+    if (R.trailingEN) {
+      var enEnd = (raw.match(/[\u4e00-\u9fa5]\s*[.;:!?](?=\s|$)/gm) || []).length;
+      if (enEnd > 0) {
+        add("info", -1, "中文句子用英文标点收尾 " + enEnd + " 处",
+          "句尾的 . : ; 应改成 。：；，更符合中文阅读习惯。", "");
+      }
     }
 
     return issues;
@@ -558,31 +755,45 @@
     });
 
     var body = paras.filter(function (p) { return !p.isHeading; });
+    var limit = state.lineLimit;
     var res = {
       paras: paras,
       issues: [],
       dims: [],
       total: 0,
+      limit: limit,
       chars: text.replace(/\s/g, "").length,
       readMin: Math.max(1, Math.round(text.replace(/\s/g, "").length / 400)),
-      badCount: body.filter(function (p) { return p.lines >= 7; }).length,
-      overCount: body.filter(function (p) { return p.lines >= 5; }).length
+      badCount: body.filter(function (p) { return p.lines >= limit + 3; }).length,
+      overCount: body.filter(function (p) { return p.lines > limit; }).length,
+      avgLines: 0, maxLines: 0, avgSent: 0, sentCount: 0, punctRate: 0
     };
+
+    if (body.length) {
+      var sumLines = 0;
+      body.forEach(function (p) {
+        sumLines += p.lines;
+        if (p.lines > res.maxLines) { res.maxLines = p.lines; }
+      });
+      res.avgLines = sumLines / body.length;
+    }
+    var punctMarks = (text.match(/[。，、；：！？…—""''（）《》]/g) || []).length;
+    res.punctRate = res.chars ? (punctMarks / res.chars) * 100 : 0;
 
     if (!body.length) {
       res.empty = true;
       return res;
     }
 
-    /* 1. 段落呼吸感 30 */
+    /* 1. 段落呼吸感 30 —— 阈值跟着行数上限走 */
     var sumA = 0;
     body.forEach(function (p) {
       var L = p.lines, s;
-      if (L <= 4) { s = 100; }
-      else if (L === 5) { s = 78; }
-      else if (L === 6) { s = 52; }
-      else if (L === 7) { s = 28; }
-      else { s = Math.max(6, 28 - (L - 7) * 6); }
+      if (L <= limit) { s = 100; }
+      else if (L === limit + 1) { s = 78; }
+      else if (L === limit + 2) { s = 52; }
+      else if (L === limit + 3) { s = 28; }
+      else { s = Math.max(6, 28 - (L - limit - 3) * 6); }
       sumA += s;
     });
     var A = 30 * (sumA / body.length) / 100;
@@ -596,7 +807,7 @@
     });
     var B = 25;
     if (sents.length) {
-      var sumB = 0;
+      var sumB = 0, sumLen = 0;
       sents.forEach(function (L) {
         var s;
         if (L <= 30) { s = 100; }
@@ -605,8 +816,11 @@
         else if (L <= 70) { s = 32; }
         else { s = 12; }
         sumB += s;
+        sumLen += L;
       });
       B = 25 * (sumB / sents.length) / 100;
+      res.sentCount = sents.length;
+      res.avgSent = sumLen / sents.length;
     }
 
     /* 3. 结构层级 20 */
@@ -615,7 +829,7 @@
     if (heads.length > 0) { C += 8; } else { cNotes.push("没有小标题"); }
     if (body.length >= 3 && body.length <= 25) { C += 4; }
     else { cNotes.push(body.length < 3 ? "段落太少，像一段宣言" : "段落过多，碎片化"); }
-    if (body[0].lines <= 4) { C += 4; } else { cNotes.push("开头第一段超过 4 行"); }
+    if (body[0].lines <= limit) { C += 4; } else { cNotes.push("开头第一段超过 " + limit + " 行"); }
     if (heads.length > 0) {
       var withGap = 0;
       heads.forEach(function (h) {
@@ -627,19 +841,42 @@
       else { cNotes.push("小标题前后没留空行"); }
     } else { cNotes.push("小标题前后没留空行"); }
 
-    /* 4. 标点与规范 25 */
+    /* 4. 标点与规范 25 —— 只统计设置里开启的规则 */
+    var R = state.rules;
     var raw = text;
-    var d = 0;
-    var noSpace = (raw.match(/[\u4e00-\u9fa5][A-Za-z0-9]/g) || []).length +
-                  (raw.match(/[A-Za-z0-9][\u4e00-\u9fa5]/g) || []).length;
-    d += Math.min(8, noSpace * 1);
-    d += Math.min(6, (raw.match(/[\u4e00-\u9fa5],|,[\u4e00-\u9fa5]/g) || []).length);
-    d += Math.min(6, (raw.match(/[！!]{2,}|[？?]{2,}|[。]{2,}|[，,]{2,}/g) || []).length * 2);
-    d += Math.min(3, (raw.match(/\.{3,}|。{3,}/g) || []).length);
-    d += Math.min(4, (raw.match(/^[ \t\u3000]+/gm) || []).length + (raw.match(/[ \t\u3000]+$/gm) || []).length);
-    if (/\u3000/.test(raw)) { d += 1; }
-    if (/\n{3,}/.test(raw)) { d += 2; }
-    d += Math.min(4, (raw.match(/[\u4e00-\u9fa5]\s*[.;:!?](?=\s|$)/gm) || []).length);
+    var d = 0, dParts = [];
+    if (R.spacing) {
+      var nSp = (raw.match(/[\u4e00-\u9fa5][A-Za-z0-9%]/g) || []).length +
+                (raw.match(/[A-Za-z0-9%][\u4e00-\u9fa5]/g) || []).length;
+      var dSp = Math.min(8, nSp);
+      if (dSp) { d += dSp; dParts.push("空格 " + nSp + " 处"); }
+    }
+    if (R.punct) {
+      var nP = (raw.match(/[\u4e00-\u9fa5],|,[\u4e00-\u9fa5]|[\u4e00-\u9fa5][ \t]*:[ \t]*[\u4e00-\u9fa5]|[\u4e00-\u9fa5][ \t]*;[ \t]*[\u4e00-\u9fa5]/g) || []).length;
+      var dP = Math.min(6, nP);
+      if (dP) { d += dP; dParts.push("半角标点 " + nP + " 处"); }
+    }
+    if (R.repeat) {
+      var nR = (raw.match(/[！!]{2,}|[？?]{2,}|[。]{2,}|[，,]{2,}/g) || []).length;
+      var dR = Math.min(6, nR * 2);
+      if (dR) { d += dR; dParts.push("连用标点 " + nR + " 处"); }
+    }
+    if (R.ellipsis) {
+      var nE = (raw.match(/\.{3,}|。{3,}/g) || []).length;
+      var dE = Math.min(3, nE);
+      if (dE) { d += dE; dParts.push("省略号 " + nE + " 处"); }
+    }
+    if (R.whitespace) {
+      var nW = (raw.match(/^[ \t\u3000]+/gm) || []).length + (raw.match(/[ \t\u3000]+$/gm) || []).length;
+      var dW = Math.min(4, nW) + (/\u3000/.test(raw) ? 1 : 0);
+      if (dW) { d += dW; dParts.push("多余空白 " + nW + " 处"); }
+    }
+    if (R.blanks && /\n{3,}/.test(raw)) { d += 2; dParts.push("连续空行"); }
+    if (R.trailingEN) {
+      var nT = (raw.match(/[\u4e00-\u9fa5]\s*[.;:!?](?=\s|$)/gm) || []).length;
+      var dT = Math.min(4, nT);
+      if (dT) { d += dT; dParts.push("句末英文标点 " + nT + " 处"); }
+    }
     var D = Math.max(0, 25 - d);
 
     res.dims = [
@@ -653,7 +890,7 @@
         note: cNotes.length ? cNotes.slice(0, 2).join("；") : "层级清楚，标题留白到位",
         color: C >= 16 ? "#1f9d63" : (C >= 11 ? "#d98324" : "#c94a4a") },
       { key: "D", name: "标点与规范", score: D, max: 25,
-        note: d === 0 ? "标点规范，没有可挑的" : (D >= 18 ? "小瑕疵 " + d + " 处" : "规范性扣分 " + d.toFixed(0) + " 分"),
+        note: d === 0 ? "标点规范，没有可挑的" : (dParts.length ? dParts.slice(0, 2).join("；") : "规范性扣分 " + d + " 分"),
         color: D >= 20 ? "#1f9d63" : (D >= 14 ? "#d98324" : "#c94a4a") }
     ];
 
@@ -705,7 +942,8 @@
     }
     res.paras.forEach(function (p, i) {
       var d = document.createElement("div");
-      d.className = "pv-p" + (p.isHeading ? " lv-head" : (p.lines >= 7 ? " lv-bad" : (p.lines >= 5 ? " lv-warn" : "")));
+      var lim = state.lineLimit;
+      d.className = "pv-p" + (p.isHeading ? " lv-head" : (p.lines >= lim + 3 ? " lv-bad" : (p.lines > lim ? " lv-warn" : "")));
       d.id = "pv-p-" + i;
       d.style.fontSize = state.fontSize + "px";
       d.style.lineHeight = String(state.lineHeight);
@@ -718,7 +956,9 @@
     el.stChars.textContent = String(res.chars);
     el.stParas.textContent = String(res.paras.length);
     el.stRead.textContent = res.empty ? "0 分钟" : (res.readMin + " 分钟");
-    el.stBad.textContent = String(res.badCount);
+    el.stAvgP.textContent = res.empty ? "0 行" : (res.avgLines.toFixed(1) + " 行");
+    el.stAvgS.textContent = res.sentCount ? (res.avgSent.toFixed(0) + " 字") : "—";
+    el.stMaxL.textContent = res.empty ? "0 行" : (res.maxLines + " 行");
 
     if (res.empty) {
       el.scoreNum.textContent = "—";
@@ -752,7 +992,11 @@
     el.gradeChip.textContent = g.t;
     el.gradeChip.style.background = g.bg;
     el.gradeChip.style.color = g.fg;
-    el.diag.textContent = diagnose(res);
+    el.diag.textContent = diagnose(res) + (res.chars < 120 ? "（草稿不足 120 字，分数波动较大）" : "");
+    if (liveAnnounce !== total) {
+      liveAnnounce = total;
+      el.liveRegion.textContent = "总分 " + total + " 分，" + g.t;
+    }
 
     /* 维度 */
     el.dims.innerHTML = "";
@@ -860,38 +1104,63 @@
   function render() {
     var res = compute(state.text);
     state.result = res;
+    syncDevice();
     renderPreview(res);
     renderReport(res);
     el.wordCount.textContent = res.chars + " 字 · " + res.paras.length + " 段";
     el.btnUndo.disabled = !state.canUndo;
-    save();
+    touchDraft(state.text);
   }
 
   /* ───────── 一键修复 ───────── */
   function autoFix(text) {
+    var R = state.rules;
     var t = text;
-    t = t.replace(/^[ \t\u3000]+/gm, "");
-    t = t.replace(/[ \t\u3000]+$/gm, "");
-    t = t.replace(/\u3000/g, " ");
-    t = t.replace(/[！!]{2,}/g, "！");
-    t = t.replace(/[？?]{2,}/g, "？");
-    t = t.replace(/([。，、；：])\1+/g, "$1");
-    t = t.replace(/\.{3,}/g, "……");
-    t = t.replace(/。{2,}/g, "……");
-    t = t.replace(/([\u4e00-\u9fa5]),(?=[\u4e00-\u9fa5])/g, "$1，");
-    t = t.replace(/([\u4e00-\u9fa5]),/g, "$1，");
-    t = t.replace(/([\u4e00-\u9fa5])[ \t]*:[ \t]*/g, "$1：");
-    t = t.replace(/([\u4e00-\u9fa5])[ \t]*;[ \t]*(?=[\u4e00-\u9fa5])/g, "$1；");
-    t = t.replace(/([\u4e00-\u9fa5])([A-Za-z0-9%])/g, "$1 $2");
-    t = t.replace(/([A-Za-z0-9%])([\u4e00-\u9fa5])/g, "$1 $2");
-    t = t.replace(/\n{3,}/g, "\n\n");
 
-    /* 长段按句拆到 4 行以内 */
+    if (R.whitespace) {
+      t = t.replace(/^[ \t\u3000]+/gm, "");
+      t = t.replace(/[ \t\u3000]+$/gm, "");
+      t = t.replace(/\u3000/g, " ");
+    }
+    if (R.repeat) {
+      t = t.replace(/[！!]{2,}/g, "！");
+      t = t.replace(/[？?]{2,}/g, "？");
+      t = t.replace(/([。，、；：])\1+/g, "$1");
+    }
+    if (R.ellipsis) {
+      t = t.replace(/\.{3,}/g, "……");
+      t = t.replace(/。{2,}/g, "……");
+    }
+    if (R.punct) {
+      t = t.replace(/([\u4e00-\u9fa5]),(?=[\u4e00-\u9fa5])/g, "$1，");
+      t = t.replace(/([\u4e00-\u9fa5]),/g, "$1，");
+      t = t.replace(/([\u4e00-\u9fa5])[ \t]*:[ \t]*/g, "$1：");
+      t = t.replace(/([\u4e00-\u9fa5])[ \t]*;[ \t]*(?=[\u4e00-\u9fa5])/g, "$1；");
+    }
+    if (R.trailingEN) {
+      t = t.replace(/([\u4e00-\u9fa5])[ \t]*([.;:!?])(?=[ \t]*$)/gm, function (m, ch, p) {
+        var map = { ".": "。", ";": "；", ":": "：", "!": "！", "?": "？" };
+        return ch + (map[p] || p);
+      });
+    }
+    if (R.spacing) {
+      t = t.replace(/([\u4e00-\u9fa5])([A-Za-z0-9%])/g, "$1 $2");
+      t = t.replace(/([A-Za-z0-9%])([\u4e00-\u9fa5])/g, "$1 $2");
+    }
+    if (R.blanks) {
+      t = t.replace(/\n{3,}/g, "\n\n");
+    }
+
+    /* 长段按句拆到行数上限以内；关闭该规则则原样保留 */
+    if (!R.splitLong) {
+      return t.replace(/^\n+/, "");
+    }
+
     var out = t.split("\n").map(function (ln) {
       var line = ln.replace(/\s+$/, "");
       if (!line.trim()) { return line; }
       if (isHeading(line.trim())) { return line; }
-      var cap = capacity() * 4;
+      var cap = capacity() * state.lineLimit;
       if (emWidth(line.trim()) <= cap) { return line; }
 
       var ss = sentences(line.trim());
@@ -915,7 +1184,7 @@
     return out.replace(/\n{3,}/g, "\n\n").replace(/^\n+/, "");
   }
 
-  /* ───────── 交互 ───────── */
+  /* ───────── 交互基础 ───────── */
   function toast(msg) {
     el.toast.textContent = msg;
     el.toast.classList.add("show");
@@ -933,12 +1202,622 @@
     render();
   }
 
-  function save() {
+  /* ───────── 配置持久化 ───────── */
+  var LS_CFG = "paiban-yisheng-config";
+  var LS_DRAFTS = "paiban-yisheng-drafts";
+  var LS_LEGACY = "paiban-yisheng-draft";
+
+  function loadCfg() {
     try {
-      localStorage.setItem("paiban-yisheng-draft", state.text);
-      localStorage.setItem("paiban-yisheng-font", String(state.fontSize));
-      localStorage.setItem("paiban-yisheng-lh", String(state.lineHeight));
-    } catch (e) { /* 隐私模式下忽略 */ }
+      var raw = localStorage.getItem(LS_CFG);
+      if (!raw) {
+        /* 兼容 v1.0 的字号 / 行高单键 */
+        var f = parseInt(localStorage.getItem("paiban-yisheng-font") || "15", 10);
+        var lh = parseFloat(localStorage.getItem("paiban-yisheng-lh") || "1.75");
+        if (f >= 14 && f <= 17) { state.fontSize = f; }
+        if (lh >= 1.6 && lh <= 2.0) { state.lineHeight = lh; }
+        return;
+      }
+      var c = JSON.parse(raw);
+      if (c.viewport >= 320 && c.viewport <= 480) { state.viewport = c.viewport; }
+      if (c.lineLimit >= 3 && c.lineLimit <= 5) { state.lineLimit = c.lineLimit; }
+      if (c.fontSize >= 14 && c.fontSize <= 17) { state.fontSize = c.fontSize; }
+      if (c.lineHeight >= 1.6 && c.lineHeight <= 2) { state.lineHeight = c.lineHeight; }
+      if (c.rules) { state.rules = cloneRules(c.rules); }
+    } catch (e) { /* 隐私模式或损坏数据，用默认值 */ }
+  }
+
+  function saveCfg() {
+    try {
+      localStorage.setItem(LS_CFG, JSON.stringify({
+        viewport: state.viewport,
+        lineLimit: state.lineLimit,
+        fontSize: state.fontSize,
+        lineHeight: state.lineHeight,
+        rules: state.rules
+      }));
+    } catch (e) { /* 忽略 */ }
+  }
+
+  /* ───────── 草稿库 ───────── */
+  var drafts = { active: "", items: [] };
+  var draftTimer = null;
+
+  function uid() {
+    return "d" + Date.now().toString(36) + Math.floor(Math.random() * 10000).toString(36);
+  }
+
+  function titleOf(t) {
+    var lines = String(t || "").split("\n");
+    for (var i = 0; i < lines.length; i++) {
+      var s = lines[i].trim();
+      if (s) { return s.length > 20 ? s.slice(0, 20) + "…" : s; }
+    }
+    return "未命名草稿";
+  }
+
+  function mkDraft(text) {
+    return { id: uid(), title: titleOf(text), text: text || "", updated: Date.now() };
+  }
+
+  function activeDraft() {
+    for (var i = 0; i < drafts.items.length; i++) {
+      if (drafts.items[i].id === drafts.active) { return drafts.items[i]; }
+    }
+    return null;
+  }
+
+  function loadDrafts() {
+    var ok = false;
+    try {
+      var raw = localStorage.getItem(LS_DRAFTS);
+      if (raw) {
+        var d = JSON.parse(raw);
+        if (d && d.items && d.items.length) { drafts = d; ok = true; }
+      }
+    } catch (e) { ok = false; }
+
+    if (!ok) {
+      var legacy = "";
+      try { legacy = localStorage.getItem(LS_LEGACY) || ""; } catch (e) { legacy = ""; }
+      var item = mkDraft(legacy);
+      drafts = { active: item.id, items: [item] };
+    }
+    var found = false;
+    drafts.items.forEach(function (it) {
+      if (!it.id) { it.id = uid(); }
+      if (!it.title) { it.title = titleOf(it.text); }
+      if (typeof it.updated !== "number") { it.updated = Date.now(); }
+      if (it.id === drafts.active) { found = true; }
+    });
+    if (!found) { drafts.active = drafts.items[0].id; }
+  }
+
+  function saveDrafts() {
+    try { localStorage.setItem(LS_DRAFTS, JSON.stringify(drafts)); } catch (e) { /* 忽略 */ }
+  }
+
+  function touchDraft(text) {
+    var it = activeDraft();
+    if (!it) { return; }
+    it.text = text;
+    it.title = titleOf(text);
+    it.updated = Date.now();
+    clearTimeout(draftTimer);
+    draftTimer = setTimeout(saveDrafts, 350);
+  }
+
+  function timeAgo(ts) {
+    var gap = Date.now() - ts;
+    if (gap < 60000) { return "刚刚"; }
+    if (gap < 3600000) { return Math.floor(gap / 60000) + " 分钟前"; }
+    if (gap < 86400000) { return Math.floor(gap / 3600000) + " 小时前"; }
+    var dt = new Date(ts);
+    return (dt.getMonth() + 1) + " 月 " + dt.getDate() + " 日";
+  }
+
+  function renderDrafts() {
+    el.draftList.innerHTML = "";
+    var sorted = drafts.items.slice().sort(function (a, b) { return b.updated - a.updated; });
+    sorted.forEach(function (it) {
+      var row = document.createElement("div");
+      row.className = "draft" + (it.id === drafts.active ? " on" : "");
+
+      var main = document.createElement("div");
+      main.className = "draft-main";
+      var t = document.createElement("div");
+      t.className = "draft-t";
+      t.textContent = it.title || "未命名草稿";
+      var m = document.createElement("div");
+      m.className = "draft-m";
+      m.textContent = it.text.replace(/\s/g, "").length + " 字 · " + timeAgo(it.updated);
+      main.appendChild(t);
+      main.appendChild(m);
+      row.appendChild(main);
+
+      if (drafts.items.length > 1) {
+        var del = document.createElement("button");
+        del.className = "draft-del";
+        del.type = "button";
+        del.textContent = "删除";
+        del.addEventListener("click", function (e) {
+          e.stopPropagation();
+          if (del.getAttribute("data-armed") !== "1") {
+            del.setAttribute("data-armed", "1");
+            del.textContent = "确认删除";
+            setTimeout(function () {
+              if (del.getAttribute("data-armed") === "1") {
+                del.setAttribute("data-armed", "0");
+                del.textContent = "删除";
+              }
+            }, 3200);
+            return;
+          }
+          removeDraft(it.id);
+        });
+        row.appendChild(del);
+      }
+
+      row.addEventListener("click", function () { switchDraft(it.id); });
+      el.draftList.appendChild(row);
+    });
+  }
+
+  function switchDraft(id) {
+    if (id === drafts.active) { closeAll(); return; }
+    var cur = activeDraft();
+    if (cur) {
+      cur.text = state.text;
+      cur.title = titleOf(state.text);
+      cur.updated = Date.now();
+    }
+    drafts.active = id;
+    var it = activeDraft();
+    state.text = it ? it.text : "";
+    state.snapshot = null;
+    state.canUndo = false;
+    el.src.value = state.text;
+    el.improve.classList.remove("show");
+    render();
+    saveDrafts();
+    renderDrafts();
+    closeAll();
+    toast("已切换草稿");
+  }
+
+  function newDraft() {
+    var cur = activeDraft();
+    if (cur) {
+      cur.text = state.text;
+      cur.title = titleOf(state.text);
+      cur.updated = Date.now();
+    }
+    var it = mkDraft("");
+    drafts.items.push(it);
+    drafts.active = it.id;
+    state.text = "";
+    state.snapshot = null;
+    state.canUndo = false;
+    el.src.value = "";
+    el.improve.classList.remove("show");
+    render();
+    saveDrafts();
+    renderDrafts();
+    closeAll();
+    try { el.src.focus(); } catch (e) { /* 忽略 */ }
+    toast("新建了一篇空白草稿");
+  }
+
+  function removeDraft(id) {
+    if (drafts.items.length <= 1) { toast("至少保留一篇草稿"); return; }
+    var idx = -1;
+    drafts.items.forEach(function (it, i) { if (it.id === id) { idx = i; } });
+    if (idx < 0) { return; }
+    drafts.items.splice(idx, 1);
+    if (drafts.active === id) {
+      drafts.active = drafts.items[0].id;
+      var na = activeDraft();
+      state.text = na ? na.text : "";
+      state.snapshot = null;
+      state.canUndo = false;
+      el.src.value = state.text;
+      el.improve.classList.remove("show");
+    }
+    render();
+    saveDrafts();
+    renderDrafts();
+    toast("已删除这篇草稿");
+  }
+
+  /* ───────── 弹层管理 ───────── */
+  var lastFocus = null;
+
+  function openModal(m) {
+    lastFocus = document.activeElement;
+    m.classList.add("show");
+    var b = m.querySelector("button");
+    if (b) { try { b.focus(); } catch (e) { /* 忽略 */ } }
+  }
+
+  function closeAll() {
+    [el.mask, el.maskSet, el.maskDraft, el.maskExp, el.maskDiff].forEach(function (m) {
+      if (m) { m.classList.remove("show"); }
+    });
+    if (lastFocus && lastFocus.focus) {
+      try { lastFocus.focus(); } catch (e) { /* 忽略 */ }
+    }
+    lastFocus = null;
+  }
+
+  document.addEventListener("click", function (e) {
+    var t = e.target;
+    if (t && t.getAttribute && t.getAttribute("data-close") !== null) { closeAll(); return; }
+    if (t && t.classList && t.classList.contains("mask")) { closeAll(); }
+  });
+
+  document.addEventListener("keydown", function (e) {
+    var mod = e.metaKey || e.ctrlKey;
+    if (e.key === "Escape") { closeAll(); return; }
+    if (mod && e.key === "Enter") { e.preventDefault(); el.btnFix.click(); return; }
+    if (mod && e.shiftKey && (e.key === "c" || e.key === "C")) {
+      e.preventDefault();
+      el.btnCopy.click();
+    }
+  });
+
+  /* ───────── 设置面板 ───────── */
+  function syncConfigUI() {
+    Array.prototype.forEach.call(el.setWidth.children, function (b) {
+      b.classList.toggle("on", parseInt(b.getAttribute("data-v"), 10) === state.viewport);
+    });
+    Array.prototype.forEach.call(el.setLimit.children, function (b) {
+      b.classList.toggle("on", parseInt(b.getAttribute("data-v"), 10) === state.lineLimit);
+    });
+    Array.prototype.forEach.call(el.segFont.children, function (c) {
+      c.classList.toggle("on", parseInt(c.getAttribute("data-v"), 10) === state.fontSize);
+    });
+    Array.prototype.forEach.call(el.segLh.children, function (c) {
+      c.classList.toggle("on", parseFloat(c.getAttribute("data-v")) === state.lineHeight);
+    });
+  }
+
+  function syncDevice() {
+    var dev = document.querySelector(".device");
+    if (dev) { dev.style.width = state.viewport + "px"; }
+    el.deviceLabel.textContent = state.viewport + " px";
+    el.lg1.textContent = state.lineLimit + " 行以内";
+    el.lg2.textContent = (state.lineLimit + 1) + "—" + (state.lineLimit + 2) + " 行";
+    el.lg3.textContent = (state.lineLimit + 3) + " 行以上";
+  }
+
+  function buildRuleList() {
+    el.ruleList.innerHTML = "";
+    RULE_META.forEach(function (meta) {
+      var row = document.createElement("div");
+      row.className = "row";
+
+      var main = document.createElement("div");
+      main.className = "r-main";
+      var t = document.createElement("div");
+      t.className = "r-title";
+      t.textContent = meta.t;
+      var d = document.createElement("div");
+      d.className = "r-sub";
+      d.textContent = meta.d;
+      main.appendChild(t);
+      main.appendChild(d);
+
+      var sw = document.createElement("label");
+      sw.className = "switch";
+      var cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.checked = !!state.rules[meta.k];
+      cb.setAttribute("data-rule", meta.k);
+      cb.setAttribute("aria-label", meta.t);
+      cb.addEventListener("change", function () {
+        state.rules[meta.k] = cb.checked;
+        saveCfg();
+        render();
+      });
+      var knob = document.createElement("i");
+      sw.appendChild(cb);
+      sw.appendChild(knob);
+
+      row.appendChild(main);
+      row.appendChild(sw);
+      el.ruleList.appendChild(row);
+    });
+  }
+
+  el.setWidth.addEventListener("click", function (e) {
+    var b = e.target.closest("button");
+    if (!b) { return; }
+    state.viewport = parseInt(b.getAttribute("data-v"), 10);
+    syncConfigUI();
+    saveCfg();
+    render();
+  });
+
+  el.setLimit.addEventListener("click", function (e) {
+    var b = e.target.closest("button");
+    if (!b) { return; }
+    state.lineLimit = parseInt(b.getAttribute("data-v"), 10);
+    syncConfigUI();
+    saveCfg();
+    render();
+  });
+
+  el.btnResetRules.addEventListener("click", function () {
+    state.rules = cloneRules(DEFAULT_RULES);
+    state.viewport = 375;
+    state.lineLimit = 4;
+    buildRuleList();
+    syncConfigUI();
+    saveCfg();
+    render();
+    toast("已恢复默认规范");
+  });
+
+  el.btnSettings.addEventListener("click", function () {
+    buildRuleList();
+    syncConfigUI();
+    openModal(el.maskSet);
+  });
+
+  el.btnDrafts.addEventListener("click", function () {
+    renderDrafts();
+    openModal(el.maskDraft);
+  });
+
+  el.btnNewDraft.addEventListener("click", newDraft);
+
+  /* ───────── 复制工具 ───────── */
+  function copyPlain(text, doneMsg) {
+    var done = function () { toast(doneMsg); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done, function () { legacy(); });
+    } else { legacy(); }
+    function legacy() {
+      var ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.left = "-9999px";
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand("copy"); done(); } catch (e) { toast("复制失败，请手动全选"); }
+      document.body.removeChild(ta);
+    }
+  }
+
+  function copyRich(html, plain, doneMsg) {
+    var done = function () { toast(doneMsg); };
+    if (navigator.clipboard && window.ClipboardItem && window.Blob) {
+      try {
+        var item = new ClipboardItem({
+          "text/html": new Blob([html], { type: "text/html" }),
+          "text/plain": new Blob([plain], { type: "text/plain" })
+        });
+        navigator.clipboard.write([item]).then(done, function () { bridge(); });
+        return;
+      } catch (e) { /* 落到 bridge */ }
+    }
+    bridge();
+    /* 旧浏览器：把生成好的 HTML 放进隐藏容器，走 execCommand 复制富文本 */
+    function bridge() {
+      var box = document.createElement("div");
+      box.contentEditable = "true";
+      box.style.position = "fixed";
+      box.style.left = "-9999px";
+      box.style.top = "0";
+      var doc = new DOMParser().parseFromString(html, "text/html");
+      box.appendChild(document.importNode(doc.body, true));
+      document.body.appendChild(box);
+      var range = document.createRange();
+      range.selectNodeContents(box);
+      var sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+      try { document.execCommand("copy"); done(); } catch (e) { toast("复制失败，请手动复制"); }
+      sel.removeAllRanges();
+      document.body.removeChild(box);
+    }
+  }
+
+  /* ───────── 导出：公众号富文本 / Markdown / 纯文本 ───────── */
+  function escHtml(s) {
+    return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  }
+
+  function bodyLines(text) {
+    return String(text).split("\n").map(function (s) {
+      return s.replace(/\s+$/, "");
+    }).filter(function (s) { return s.trim(); });
+  }
+
+  function toWechatHtml(text) {
+    var out = [];
+    bodyLines(text).forEach(function (p) {
+      var head = isHeading(p);
+      var style = "font-size:" + state.fontSize + "px;line-height:" + state.lineHeight +
+        "em;margin:0 0 16px 0;color:#3f3f3f;letter-spacing:0.5px;text-align:justify;" +
+        (head ? "font-weight:600;color:#1a1a1a;margin:26px 0 12px 0;" : "");
+      var inner = head ? "<strong>" + escHtml(p) + "</strong>" : escHtml(p);
+      out.push('<p style="' + style + '">' + inner + "</p>");
+    });
+    return out.join("\n");
+  }
+
+  function toMarkdown(text) {
+    return bodyLines(text).map(function (p) {
+      return isHeading(p) ? "## " + p : p;
+    }).join("\n\n");
+  }
+
+  el.btnExpCard.addEventListener("click", function () {
+    closeAll();
+    setTimeout(function () {
+      var res = state.result;
+      if (!res || res.empty) { toast("先载入或粘贴一段草稿"); return; }
+      drawCard(res);
+    }, 120);
+  });
+
+  el.btnExpHtml.addEventListener("click", function () {
+    if (!state.text.trim()) { toast("先粘一段草稿"); return; }
+    closeAll();
+    copyRich(toWechatHtml(state.text), state.text, "已复制富文本，可直接粘进公众号后台");
+  });
+
+  el.btnExpMd.addEventListener("click", function () {
+    if (!state.text.trim()) { toast("先粘一段草稿"); return; }
+    closeAll();
+    copyPlain(toMarkdown(state.text), "Markdown 已复制");
+  });
+
+  el.btnExpTxt.addEventListener("click", function () {
+    if (!state.text.trim()) { toast("先粘一段草稿"); return; }
+    closeAll();
+    copyPlain(state.text, "纯文本已复制");
+  });
+
+  /* ───────── 修复前后对比 ───────── */
+  function lcsMatrix(a, b) {
+    var n = a.length, m = b.length, i, j;
+    var dp = [];
+    for (i = 0; i <= n; i++) {
+      dp.push(new Array(m + 1));
+      for (j = 0; j <= m; j++) { dp[i][j] = 0; }
+    }
+    for (i = n - 1; i >= 0; i--) {
+      for (j = m - 1; j >= 0; j--) {
+        dp[i][j] = a[i] === b[j] ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1]);
+      }
+    }
+    return dp;
+  }
+
+  function diffLines(a, b) {
+    var dp = lcsMatrix(a, b), i = 0, j = 0, ops = [];
+    while (i < a.length && j < b.length) {
+      if (a[i] === b[j]) { ops.push({ t: "same", a: a[i] }); i++; j++; }
+      else if (dp[i + 1][j] >= dp[i][j + 1]) { ops.push({ t: "del", a: a[i] }); i++; }
+      else { ops.push({ t: "ins", b: b[j] }); j++; }
+    }
+    while (i < a.length) { ops.push({ t: "del", a: a[i] }); i++; }
+    while (j < b.length) { ops.push({ t: "ins", b: b[j] }); j++; }
+    return ops;
+  }
+
+  function diffChars(a, b) {
+    if (a === b) { return [{ t: "s", v: a }]; }
+    if (a.length > 600 || b.length > 600) {
+      return [{ t: "d", v: a }, { t: "i", v: b }];
+    }
+    var dp = lcsMatrix(a.split(""), b.split(""));
+    var i = 0, j = 0, out = [];
+    function push(t, ch) {
+      if (out.length && out[out.length - 1].t === t) { out[out.length - 1].v += ch; }
+      else { out.push({ t: t, v: ch }); }
+    }
+    while (i < a.length && j < b.length) {
+      if (a.charAt(i) === b.charAt(j)) { push("s", a.charAt(i)); i++; j++; }
+      else if (dp[i + 1][j] >= dp[i][j + 1]) { push("d", a.charAt(i)); i++; }
+      else { push("i", b.charAt(j)); j++; }
+    }
+    while (i < a.length) { push("d", a.charAt(i)); i++; }
+    while (j < b.length) { push("i", b.charAt(j)); j++; }
+    return out;
+  }
+
+  function buildBlocks(ops) {
+    var blocks = [], i = 0;
+    while (i < ops.length) {
+      if (ops[i].t === "same") {
+        var run = [];
+        while (i < ops.length && ops[i].t === "same") { run.push(ops[i].a); i++; }
+        blocks.push({ t: "same", lines: run });
+      } else {
+        var dels = [], inss = [];
+        while (i < ops.length && ops[i].t !== "same") {
+          if (ops[i].t === "del") { dels.push(ops[i].a); } else { inss.push(ops[i].b); }
+          i++;
+        }
+        var k = Math.max(dels.length, inss.length);
+        for (var q = 0; q < k; q++) {
+          blocks.push({ t: "chg", a: dels[q] || "", b: inss[q] || "" });
+        }
+      }
+    }
+    return blocks;
+  }
+
+  function appendSegments(box, segs, kind) {
+    segs.forEach(function (sg) {
+      if (sg.t === "s") {
+        box.appendChild(document.createTextNode(sg.v));
+      } else if (sg.t === "d" && kind !== "new") {
+        var del = document.createElement("del");
+        del.textContent = sg.v;
+        box.appendChild(del);
+      } else if (sg.t === "i" && kind !== "old") {
+        var ins = document.createElement("ins");
+        ins.textContent = sg.v;
+        box.appendChild(ins);
+      }
+    });
+  }
+
+  function openDiff() {
+    var s = state.snapshot;
+    if (!s) { toast("还没有可对比的修复记录"); return; }
+    el.diffSub.textContent = "总分 " + s.beforeScore + " → " + s.afterScore + " · 红色是删掉的，绿色是加上的";
+    el.diffBody.innerHTML = "";
+
+    var blocks = buildBlocks(diffLines(bodyLines(s.before), bodyLines(s.after)));
+    if (!blocks.length) {
+      var none = document.createElement("div");
+      none.className = "d-empty";
+      none.textContent = "两版内容一致，没有差异。";
+      el.diffBody.appendChild(none);
+      openModal(el.maskDiff);
+      return;
+    }
+
+    var sameStreak = 0;
+    var changeNo = 0;
+    blocks.forEach(function (bl, idx) {
+      if (bl.t === "same") {
+        sameStreak += bl.lines.length;
+        var isLast = idx === blocks.length - 1;
+        if (sameStreak < 3 && !isLast) { return; }
+        var same = document.createElement("div");
+        same.className = "d-same";
+        same.textContent = "⋯ " + sameStreak + " 段未改动 ⋯";
+        el.diffBody.appendChild(same);
+        sameStreak = 0;
+        return;
+      }
+      changeNo++;
+      var wrap = document.createElement("div");
+      wrap.className = "d-block";
+      var tag = document.createElement("div");
+      tag.className = "d-tag";
+      tag.textContent = "第 " + changeNo + " 处改动";
+      var oldBox = document.createElement("div");
+      oldBox.className = "d-old";
+      var newBox = document.createElement("div");
+      newBox.className = "d-new";
+      var segs = diffChars(bl.a, bl.b);
+      appendSegments(oldBox, segs, "old");
+      appendSegments(newBox, segs, "new");
+      wrap.appendChild(tag);
+      wrap.appendChild(oldBox);
+      wrap.appendChild(newBox);
+      el.diffBody.appendChild(wrap);
+    });
+
+    openModal(el.maskDiff);
   }
 
   el.src.addEventListener("input", function () {
@@ -948,33 +1827,62 @@
 
   el.btnSample.addEventListener("click", function () {
     setText(SAMPLE);
+    state.snapshot = null;
     el.improve.classList.remove("show");
     toast("已载入示例草稿");
   });
 
+  function renderImprove(before, after, withDiff) {
+    var delta = after - before;
+    el.improve.innerHTML = "";
+    el.improve.classList.add("show");
+
+    var left = document.createElement("span");
+    left.appendChild(document.createTextNode(delta > 0 ? "一键修复 " : "已整理 "));
+    var b = document.createElement("b");
+    b.textContent = (delta > 0 ? "+" : "") + delta + " 分（" + before + "→" + after + "）";
+    left.appendChild(b);
+
+    el.improve.appendChild(left);
+
+    if (withDiff) {
+      var act = document.createElement("span");
+      act.className = "i-act";
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.textContent = "查看改动";
+      btn.addEventListener("click", openDiff);
+      act.appendChild(btn);
+      el.improve.appendChild(act);
+    }
+  }
+
   el.btnFix.addEventListener("click", function () {
     if (!state.text.trim()) { toast("先粘一段草稿进来"); return; }
-    var before = state.result && !state.result.empty ? state.result.total : null;
-    var fixed = autoFix(state.text);
-    if (fixed === state.text) { toast("已经没什么可自动修的了"); return; }
-    state.lastText = state.text;
+    var beforeRes = state.result && !state.result.empty ? state.result : null;
+    if (!beforeRes) { toast("这篇还没有可体检的正文"); return; }
+
+    var before = beforeRes.total;
+    var src = state.text;
+    var fixed = autoFix(src);
+    if (fixed === src) { toast("已经没什么可自动修的了"); return; }
+
+    state.lastText = src;
     state.canUndo = true;
     state.text = fixed;
     el.src.value = fixed;
     render();
-    if (before !== null) {
-      var after = state.result.total;
-      var delta = after - before;
-      el.improve.innerHTML = "";
-      el.improve.classList.add("show");
-      var span = document.createElement("span");
-      span.textContent = delta > 0 ? "一键修复完成，总分提升" : "已按规则整理，总分变化";
-      var b = document.createElement("b");
-      b.textContent = (delta > 0 ? "+" : "") + delta + " 分（" + before + " → " + after + "）";
-      el.improve.appendChild(span);
-      el.improve.appendChild(b);
-    }
-    toast("已按规则修复，可撤销");
+
+    var after = state.result.total;
+    state.snapshot = {
+      before: src,
+      after: fixed,
+      beforeScore: before,
+      afterScore: after,
+      at: Date.now()
+    };
+    renderImprove(before, after, true);
+    toast("已按规则修复，可撤销或查看改动");
   });
 
   el.btnUndo.addEventListener("click", function () {
@@ -982,6 +1890,7 @@
     state.text = state.lastText;
     el.src.value = state.text;
     state.canUndo = false;
+    state.snapshot = null;
     el.improve.classList.remove("show");
     render();
     toast("已撤销");
@@ -992,6 +1901,7 @@
     state.lastText = state.text;
     state.canUndo = true;
     state.text = "";
+    state.snapshot = null;
     el.src.value = "";
     el.improve.classList.remove("show");
     render();
@@ -999,50 +1909,32 @@
 
   el.btnCopy.addEventListener("click", function () {
     if (!state.text) { toast("还没有内容"); return; }
-    var done = function () { toast("修订稿已复制"); };
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(state.text).then(done, function () { legacyCopy(); });
-    } else { legacyCopy(); }
-    function legacyCopy() {
-      var ta = document.createElement("textarea");
-      ta.value = state.text;
-      ta.style.position = "fixed";
-      ta.style.opacity = "0";
-      document.body.appendChild(ta);
-      ta.select();
-      try { document.execCommand("copy"); done(); } catch (e) { toast("复制失败，请手动全选"); }
-      document.body.removeChild(ta);
-    }
+    copyPlain(state.text, "修订稿已复制");
   });
 
-  el.btnRules.addEventListener("click", function () { el.mask.classList.add("show"); });
-  el.btnCloseRules.addEventListener("click", function () { el.mask.classList.remove("show"); });
-  el.mask.addEventListener("click", function (e) {
-    if (e.target === el.mask) { el.mask.classList.remove("show"); }
-  });
+  el.btnRules.addEventListener("click", function () { openModal(el.mask); });
+  el.btnCloseRules.addEventListener("click", closeAll);
 
   el.segFont.addEventListener("click", function (e) {
     var b = e.target.closest("button");
     if (!b) { return; }
     state.fontSize = parseInt(b.getAttribute("data-v"), 10);
-    Array.prototype.forEach.call(el.segFont.children, function (c) { c.classList.remove("on"); });
-    b.classList.add("on");
+    syncConfigUI();
+    saveCfg();
     render();
   });
   el.segLh.addEventListener("click", function (e) {
     var b = e.target.closest("button");
     if (!b) { return; }
     state.lineHeight = parseFloat(b.getAttribute("data-v"));
-    Array.prototype.forEach.call(el.segLh.children, function (c) { c.classList.remove("on"); });
-    b.classList.add("on");
-    renderPreview(state.result);
+    syncConfigUI();
+    saveCfg();
+    render();
   });
 
-  /* ───────── 导出体检卡 ───────── */
+  /* ───────── 导出入口 ───────── */
   el.btnExport.addEventListener("click", function () {
-    var res = state.result;
-    if (!res || res.empty) { toast("先载入或粘贴一段草稿"); return; }
-    drawCard(res);
+    openModal(el.maskExp);
   });
 
   function roundRect(ctx, x, y, w, h, r) {
@@ -1187,29 +2079,50 @@
 
   /* ───────── 启动 ───────── */
   (function init() {
-    var draft = "";
-    try {
-      draft = localStorage.getItem("paiban-yisheng-draft") || "";
-      var f = parseInt(localStorage.getItem("paiban-yisheng-font") || "15", 10);
-      var lh = parseFloat(localStorage.getItem("paiban-yisheng-lh") || "1.75");
-      if (f >= 14 && f <= 17) {
-        state.fontSize = f;
-        Array.prototype.forEach.call(el.segFont.children, function (c) {
-          c.classList.toggle("on", c.getAttribute("data-v") === String(f));
-        });
-      }
-      if (lh >= 1.6 && lh <= 2.0) {
-        state.lineHeight = lh;
-        Array.prototype.forEach.call(el.segLh.children, function (c) {
-          c.classList.toggle("on", parseFloat(c.getAttribute("data-v")) === lh);
-        });
-      }
-    } catch (e) { draft = ""; }
+    loadCfg();
+    loadDrafts();
+    syncConfigUI();
+    buildRuleList();
 
-    state.text = draft;
-    el.src.value = draft;
+    var it = activeDraft();
+    state.text = it ? it.text : "";
+    el.src.value = state.text;
     render();
+    saveDrafts();
   })();
+
+  /* ───────── 对外 API ─────────
+     供自动化测试与第三方调用：只暴露纯函数与配置读写，不暴露 DOM。 */
+  window.PaibanYisheng = {
+    version: VERSION,
+    compute: function (t) { return compute(String(t == null ? "" : t)); },
+    autoFix: function (t) { return autoFix(String(t == null ? "" : t)); },
+    estimateLines: function (s) { return estLines(String(s == null ? "" : s)); },
+    emWidth: emWidth,
+    isHeading: function (s) { return isHeading(String(s == null ? "" : s)); },
+    toWechatHtml: function (t) { return toWechatHtml(String(t == null ? "" : t)); },
+    toMarkdown: function (t) { return toMarkdown(String(t == null ? "" : t)); },
+    getConfig: function () {
+      return {
+        viewport: state.viewport,
+        lineLimit: state.lineLimit,
+        fontSize: state.fontSize,
+        lineHeight: state.lineHeight,
+        rules: cloneRules(state.rules)
+      };
+    },
+    setConfig: function (patch) {
+      var p = patch || {};
+      if (p.viewport >= 320 && p.viewport <= 480) { state.viewport = p.viewport; }
+      if (p.lineLimit >= 3 && p.lineLimit <= 5) { state.lineLimit = p.lineLimit; }
+      if (p.fontSize >= 14 && p.fontSize <= 17) { state.fontSize = p.fontSize; }
+      if (p.lineHeight >= 1.6 && p.lineHeight <= 2) { state.lineHeight = p.lineHeight; }
+      if (p.rules) { state.rules = cloneRules(p.rules); }
+      syncConfigUI();
+      render();
+      return this.getConfig();
+    }
+  };
 })();
 </script>
 </body>

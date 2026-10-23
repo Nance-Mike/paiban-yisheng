@@ -14,3 +14,6 @@ _c.js
 *.log
 *.tmp
 node_modules/
+
+# 本地截图与临时验证产物
+_shots/
