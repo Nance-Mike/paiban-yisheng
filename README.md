@@ -4,6 +4,8 @@
 
 在线体验：<https://workbuddy.link/p/jbhmStKun7Y2C1rHGfz2HB>
 
+镜像站点：<https://nance-mike.github.io/paiban-yisheng/>（GitHub Pages，内容与本仓库 `index.html` 一致，可作长期链接）
+
 ![体检前：75 分](docs/screenshots/01-before-75.png)
 
 ![一键修复后：92 分](docs/screenshots/02-after-92.png)

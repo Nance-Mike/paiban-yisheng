@@ -3,6 +3,7 @@
 - 体验链接（投稿第 06 项）：<https://workbuddy.link/p/jbhmStKun7Y2C1rHGfz2HB>
 - 编辑链接（自己改稿用）：<https://www.workbuddy.cn/space/d/jbhmStKun7Y2C1rHGfz2HB>
 - GitHub 仓库：<https://github.com/Nance-Mike/paiban-yisheng>
+- 备用体验链接（GitHub Pages）：<https://nance-mike.github.io/paiban-yisheng/>
 - 页面上墙后建议先自查一遍：手机打开链接 → 点「载入示例」→ 点「一键修复」，能跑通即无问题
 
 ---
